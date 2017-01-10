@@ -36,7 +36,7 @@ namespace PudgePRO
             //    {"item_dagon", true},
             //    {"item_ethereal_blade", true},
                 {"item_ghost", true},
-            //    {"item_force_staff", true},
+                {"item_force_staff", true},
             //    {"item_veil_of_discord", true},
             //    {"item_bottle", true},
                 {"item_urn_of_shadows", true}
@@ -61,6 +61,8 @@ namespace PudgePRO
         //public static MenuItem SafeBlinkRange;
 
         public static MenuItem soulRing;
+
+        public static MenuItem safeForce;
 
         public static MenuItem hookPredict;
 

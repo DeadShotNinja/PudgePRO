@@ -12,6 +12,7 @@ namespace PudgePRO
             useBlink = new MenuItem("useBlink", "Use Blink Dagger").SetValue(true).SetTooltip("Will auto blink (with logic) while combo key is held down.");
             soulRing = new MenuItem("soulRing", "Soulring").SetValue(true).SetTooltip("Will use soul ring before combo.");
             hookPredict = new MenuItem("hookPredict", "Auto Hook Prediction").SetValue(true).SetTooltip("Will auto predict target location for EZ hooks.");
+            safeForce = new MenuItem("forcePredict", "Safe Force Staff").SetValue(true).SetTooltip("Will only forcestaff if you're facing the target.");
             //toggleHookTime = new MenuItem("toggleHookTime", "Bad Hook STOP").SetValue(new Slider(100, 200, 280)).SetTooltip("TESTING: Prevent fail hooks.");
             //badHook = new MenuItem("badHook", "Fail Hook Ticks").SetValue(new Slider(70, 1, 75)).SetTooltip("TESTING: Will STOP action within selected ticks to prevent POSSIBLE bad hooks.");
             //fountainBottle = new MenuItem("fountainBottle", "Bottle at Fountain").SetValue(true).SetTooltip("Will auto use bottle while at fountain.");            
@@ -33,6 +34,7 @@ namespace PudgePRO
 
             items.AddItem(new MenuItem("items", "Items").SetValue(new AbilityToggler(itemsDictionary)));
             items.AddItem(useBlink);
+            items.AddItem(safeForce);
             //items.AddItem(SafeBlinkRange);
             items.AddItem(soulRing);
             //items.AddItem(fountainBottle);
