@@ -25,6 +25,7 @@ namespace PudgePRO
             aetherLens = me.FindItem("item_aether_lens");
             //bottle = me.FindItem("item_bottle");
             urn = me.FindItem("item_urn_of_shadows");
+            forcestaff = me.FindItem("item_force_staff");
             hook = me.FindSpell("pudge_meat_hook");
             rot = me.FindSpell("pudge_rot");
             dismember = me.FindSpell("pudge_dismember");
@@ -299,8 +300,8 @@ namespace PudgePRO
         public static void UseBlink()
         {
 
-            if (!useBlink.GetValue<bool>() || blink == null || !blink.CanBeCasted() || !Utils.SleepCheck("PudgePROblink")) return;// ||
-                //(hook.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me))) return;
+            if (!useBlink.GetValue<bool>() || blink == null || !blink.CanBeCasted() || !Utils.SleepCheck("PudgePROblink") ||
+                (dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me))) return;
 
             var fullBlinkRange = aetherLens == null ? 1200 : 1420;
             var currentPosition = me.Position;
@@ -324,6 +325,36 @@ namespace PudgePRO
             blink.UseAbility(blinkLocation); 
 
             Utils.Sleep(200, "PudgePROblink");
+        }
+
+        public static void UseForceStaff()
+        {
+            if (!Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) || forcestaff == null ||
+                !forcestaff.CanBeCasted() || !Utils.SleepCheck("PudgePROforceStaff")) return; //||
+                //(dismember.GetCastRange() + me.HullRadius + forcestaff.GetCastRange() < target.NetworkPosition.Distance2D(me) + forcestaff.GetCastRange())) return;
+
+            var fullForceRange = forcestaff.GetCastRange();
+            var tToMeDist = target.NetworkPosition.Distance2D(me);
+            var currentPosition = me.Position;
+            var targetPosition = target.Position;
+            var meTargetAngle = currentPosition.ToVector2().FindAngleBetween(targetPosition.ToVector2(), true);
+
+            var newPosition = new Vector3(
+                    currentPosition.X + fullForceRange * (float)Math.Cos(meTargetAngle),
+                    currentPosition.Y + fullForceRange * (float)Math.Sin(meTargetAngle),
+                    100);
+
+            //me.Move(newPosition);
+            var turnTime = currentPosition.FindAngleForTurnTime(targetPosition);
+            //Game.PrintMessage("Range is: " + fullForceRange, MessageType.LogMessage);
+
+            if (targetPosition.Distance2D(newPosition) < tToMeDist)
+            {
+                forcestaff.UseAbility(me);
+            }
+            else return;
+
+            Utils.Sleep(200, "PudgePROforceStaff");
         }
 
         public static float GetDistance2D(Vector3 p1, Vector3 p2)

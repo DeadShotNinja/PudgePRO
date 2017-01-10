@@ -35,6 +35,7 @@ namespace PudgePRO
             //    {"item_dagon", true},
             //    {"item_ethereal_blade", true},
                 {"item_ghost", true},
+                {"item_force_staff", true},
             //    {"item_veil_of_discord", true},
             //    {"item_bottle", true},
                 {"item_urn_of_shadows", true}
@@ -72,7 +73,7 @@ namespace PudgePRO
 
         public static Ability hook, rot, dismember;
 
-        public static Item soulring, sheep, veil, shivas, dagon, ethereal, blink, ghost, aetherLens, bottle, urn;
+        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff; //sheep, veil, dagon, ethereal, bottle
 
         public static Hero me, target;
 

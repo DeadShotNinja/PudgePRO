@@ -85,6 +85,8 @@ namespace PudgePRO
 
                 UseBlink();
 
+                UseForceStaff();
+
                 UseRot();
 
                 UseItem(ghost, 1000);
