@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Timers;
 using Ensage;
 using Ensage.Common.Menu;
 using SharpDX;
@@ -35,7 +36,7 @@ namespace PudgePRO
             //    {"item_dagon", true},
             //    {"item_ethereal_blade", true},
                 {"item_ghost", true},
-                {"item_force_staff", true},
+            //    {"item_force_staff", true},
             //    {"item_veil_of_discord", true},
             //    {"item_bottle", true},
                 {"item_urn_of_shadows", true}
@@ -63,6 +64,10 @@ namespace PudgePRO
 
         public static MenuItem hookPredict;
 
+        //public static MenuItem badHook;
+
+        //public static MenuItem toggleHookTime;
+
         //public static MenuItem fountainBottle;
 
         //public static MenuItem bladeMail;
@@ -70,6 +75,8 @@ namespace PudgePRO
         public static MenuItem useBlink;
 
         public static bool loaded, rotOn, isInRange;
+
+        //public static float minDistHook;
 
         public static Ability hook, rot, dismember;
 
@@ -81,9 +88,13 @@ namespace PudgePRO
 
         public static Vector2 iconSize, screenPosition;
 
+        //public static Vector3 hookLocation;
+
         public static DotaTexture heroIcon;
 
         public static ParticleEffect circle;
+
+        public static Timer time;
 
         //public static readonly uint[] DagonDamage = { 0, 400, 500, 600, 700, 800 };
     }

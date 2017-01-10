@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Timers;
 using System.Reflection;
 using Ensage;
 using Ensage.Common;
@@ -25,7 +26,7 @@ namespace PudgePRO
             aetherLens = me.FindItem("item_aether_lens");
             //bottle = me.FindItem("item_bottle");
             urn = me.FindItem("item_urn_of_shadows");
-            forcestaff = me.FindItem("item_force_staff");
+            //forcestaff = me.FindItem("item_force_staff");
             hook = me.FindSpell("pudge_meat_hook");
             rot = me.FindSpell("pudge_rot");
             dismember = me.FindSpell("pudge_dismember");
@@ -132,6 +133,7 @@ namespace PudgePRO
                 !dismember.CanBeCasted() && !dismember.IsInAbilityPhase && !me.IsChanneling()) || (ability.Name.Contains("hook") && dismember != null &&
                 dismember.GetCastRange() + me.HullRadius < target.NetworkPosition.Distance2D(me)))
             {
+                //hookLocation = Prediction.SkillShotXYZ(me, target, (float)hook.GetHitDelay(target, hook.Name), hook.GetProjectileSpeed(hook.Name), hook.GetRadius(hook.Name));
                 //Game.PrintMessage("Trying to Hook.", MessageType.LogMessage);
                 if (!hookPredict.GetValue<bool>()) ability.UseAbility(target.NetworkPosition);
                 else ability.CastSkillShot(target, "pudge_meat_hook", soulring);
@@ -327,39 +329,66 @@ namespace PudgePRO
             Utils.Sleep(200, "PudgePROblink");
         }
 
-        public static void UseForceStaff()
-        {
-            if (!Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) || forcestaff == null ||
-                !forcestaff.CanBeCasted() || !Utils.SleepCheck("PudgePROforceStaff")) return; //||
-                //(dismember.GetCastRange() + me.HullRadius + forcestaff.GetCastRange() < target.NetworkPosition.Distance2D(me) + forcestaff.GetCastRange())) return;
+        //public static void UseForceStaff()
+        //{
+        //    if (!Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) || forcestaff == null ||
+        //        !forcestaff.CanBeCasted() || !Utils.SleepCheck("PudgePROforceStaff")) return; //||
+        //        //(dismember.GetCastRange() + me.HullRadius + forcestaff.GetCastRange() < target.NetworkPosition.Distance2D(me) + forcestaff.GetCastRange())) return;
 
-            var fullForceRange = forcestaff.GetCastRange();
-            var tToMeDist = target.NetworkPosition.Distance2D(me);
-            var currentPosition = me.Position;
-            var targetPosition = target.Position;
-            var meTargetAngle = currentPosition.ToVector2().FindAngleBetween(targetPosition.ToVector2(), true);
+        //    var fullForceRange = forcestaff.GetCastRange();
+        //    var tToMeDist = target.NetworkPosition.Distance2D(me);
+        //    var currentPosition = me.Position;
+        //    var targetPosition = target.Position;
+        //    var meTargetAngle = currentPosition.ToVector2().FindAngleBetween(targetPosition.ToVector2(), true);
 
-            var newPosition = new Vector3(
-                    currentPosition.X + fullForceRange * (float)Math.Cos(meTargetAngle),
-                    currentPosition.Y + fullForceRange * (float)Math.Sin(meTargetAngle),
-                    100);
+        //    var newPosition = new Vector3(
+        //            currentPosition.X + fullForceRange * (float)Math.Cos(meTargetAngle),
+        //            currentPosition.Y + fullForceRange * (float)Math.Sin(meTargetAngle),
+        //            100);
 
-            //me.Move(newPosition);
-            var turnTime = currentPosition.FindAngleForTurnTime(targetPosition);
-            //Game.PrintMessage("Range is: " + fullForceRange, MessageType.LogMessage);
+        //    //me.Move(newPosition);
+        //    var turnTime = currentPosition.FindAngleForTurnTime(targetPosition);
+        //    //Game.PrintMessage("Range is: " + fullForceRange, MessageType.LogMessage);
 
-            if (targetPosition.Distance2D(newPosition) < tToMeDist)
-            {
-                forcestaff.UseAbility(me);
-            }
-            else return;
+        //    if (targetPosition.Distance2D(newPosition) < tToMeDist)
+        //    {
+        //        forcestaff.UseAbility(me);
+        //    }
+        //    else return;
 
-            Utils.Sleep(200, "PudgePROforceStaff");
-        }
+        //    Utils.Sleep(200, "PudgePROforceStaff");
+        //}
+
+        //public void BadHook(object s, ElapsedEventArgs args)
+        //{
+        //    ///// PART OF THIS CODE WAS USED FROM VickTheRock (Credits for the logic) /////
+
+        //    target = me.ClosestToMouseTarget(ClosestToMouseRange.GetValue<Slider>().Value);
+
+        //    minDistHook = target.HullRadius + 27;
+
+        //    if (target == null || !target.IsValid || target.IsIllusion || !target.IsAlive || target.IsInvul()) return;
+
+        //    //if (target.HasModifier("modifier_spirit_breaker_charge_of_darkness")) return;
+
+        //    double travelTime = hookLocation.Distance2D(me.Position) / 1600;
+        //    Vector3 ePosition = new Vector3((float)((travelTime) * Math.Cos(target.RotationRad) * target.MovementSpeed + target.NetworkPosition.X),
+        //                                   (float)((travelTime) * Math.Sin(target.RotationRad) * target.MovementSpeed + target.NetworkPosition.Y), 0);
+        //    if (target != null && target.NetworkActivity == NetworkActivity.Move && ePosition.Distance2D(hookLocation) > minDistHook + Menu.Item("badHook").GetValue<Slider>().Value)
+        //    {
+        //        me.Stop();
+        //        time.Stop();
+        //    }
+        //    else
+        //    {
+        //        if (hook != null)
+        //            time.Stop();
+        //    }
+        //}
 
         public static float GetDistance2D(Vector3 p1, Vector3 p2)
         {
             return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
-        }
+        }        
     }
 }
