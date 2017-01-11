@@ -31,13 +31,16 @@ namespace PudgePRO
 
         public static Dictionary<string, bool> itemsDictionary = new Dictionary<string, bool>
         {
-            //    {"item_sheepstick", true},
+                {"item_sheepstick", true},
+                {"item_bloodthorn", true},
+                {"item_orchid", true},
                 {"item_shivas_guard", true},
-            //    {"item_dagon", true},
-            //    {"item_ethereal_blade", true},
+                {"item_dagon", true},
+                {"item_ethereal_blade", true},
                 {"item_ghost", true},
                 {"item_force_staff", true},
-            //    {"item_veil_of_discord", true},
+                {"item_veil_of_discord", true},
+                {"item_glimmer_cape", true},
             //    {"item_bottle", true},
                 {"item_urn_of_shadows", true}
         };
@@ -82,7 +85,7 @@ namespace PudgePRO
 
         public static Ability hook, rot, dismember;
 
-        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff; //sheep, veil, dagon, ethereal, bottle
+        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer; // bottle
 
         public static Hero me, target;
 
@@ -96,7 +99,7 @@ namespace PudgePRO
 
         public static ParticleEffect circle;
 
-        public static Timer time;
+        //public static Timer time;
 
         //public static readonly uint[] DagonDamage = { 0, 400, 500, 600, 700, 800 };
     }

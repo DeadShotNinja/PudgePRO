@@ -17,16 +17,19 @@ namespace PudgePRO
             if (!Utils.SleepCheck("PudgePROGetAbilities")) return;
             blink = me.FindItem("item_blink");
             soulring = me.FindItem("item_soul_ring");
-            //sheep = me.FindItem("item_sheepstick");
-            //veil = me.FindItem("item_veil_of_discord");
+            sheep = me.FindItem("item_sheepstick");
+            veil = me.FindItem("item_veil_of_discord");
             shivas = me.FindItem("item_shivas_guard");
-            //dagon = me.GetDagon();
+            dagon = me.GetDagon();
             ghost = me.FindItem("item_ghost");
-            //ethereal = me.FindItem("item_ethereal_blade");
+            ethereal = me.FindItem("item_ethereal_blade");
             aetherLens = me.FindItem("item_aether_lens");
             //bottle = me.FindItem("item_bottle");
             urn = me.FindItem("item_urn_of_shadows");
             forcestaff = me.FindItem("item_force_staff");
+            orchid = me.FindItem("item_orchid");
+            bloodthorn = me.FindItem("item_bloodthorn");
+            glimmer = me.FindItem("item_glimmer_cape");
             hook = me.FindSpell("pudge_meat_hook");
             rot = me.FindSpell("pudge_rot");
             dismember = me.FindSpell("pudge_dismember");
@@ -61,13 +64,16 @@ namespace PudgePRO
 
             //}
             if (
-                //sheep != null && sheep.CanBeCasted() && me.Mana > sheep.ManaCost)
-                //|| (dagon != null && dagon.CanBeCasted() && me.Mana > dagon.ManaCost)
-                (hook != null && hook.CanBeCasted() && me.Mana > hook.ManaCost)
-                //|| (veil != null && veil.CanBeCasted() && me.Mana > veil.ManaCost && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
+                (sheep != null && sheep.CanBeCasted() && me.Mana > sheep.ManaCost)
+                || (bloodthorn != null && bloodthorn.CanBeCasted() && me.Mana > bloodthorn.ManaCost)
+                || (orchid != null && orchid.CanBeCasted() && me.Mana > orchid.ManaCost)
+                || (dagon != null && dagon.CanBeCasted() && me.Mana > dagon.ManaCost)
+                || (hook != null && hook.CanBeCasted() && me.Mana > hook.ManaCost)
+                || (veil != null && veil.CanBeCasted() && me.Mana > veil.ManaCost && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
                 || (shivas != null && shivas.CanBeCasted() && me.Mana > shivas.ManaCost)
-                //|| (ethereal != null && ethereal.CanBeCasted() && me.Mana > ethereal.ManaCost)
+                || (ethereal != null && ethereal.CanBeCasted() && me.Mana > ethereal.ManaCost)
                 || (dismember != null && dismember.CanBeCasted() && me.Mana > dismember.ManaCost)
+                || (glimmer != null && glimmer.CanBeCasted() && me.Mana > glimmer.ManaCost)
                 )
                 return true;
             return false;
@@ -125,22 +131,33 @@ namespace PudgePRO
         {
             if (ability == null || !ability.CanBeCasted() || ability.IsInAbilityPhase ||
                 !target.IsValidTarget(range, true, me.NetworkPosition) || me.IsChanneling() ||
-                !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(ability.Name)) return; //||
-                //!Utils.SleepCheck("PudgePROcomboSleep")) return;
+                !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(ability.Name) ||
+                !Utils.SleepCheck("PudgePROcastSleep")) return;
 
+            Utils.Sleep(100, "PudgePROcastSleep");
 
             if ((ability.Name.Contains("hook") && dismember == null) || (ability.Name.Contains("hook") && dismember != null &&
                 !dismember.CanBeCasted() && !dismember.IsInAbilityPhase && !me.IsChanneling()) || (ability.Name.Contains("hook") && dismember != null &&
                 dismember.GetCastRange() + me.HullRadius < target.NetworkPosition.Distance2D(me)))
             {
                 //hookLocation = Prediction.SkillShotXYZ(me, target, (float)hook.GetHitDelay(target, hook.Name), hook.GetProjectileSpeed(hook.Name), hook.GetRadius(hook.Name));
+                
+                if (sheep != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(sheep.Name) && sheep.CanBeCasted() && sheep.GetCastRange() > target.NetworkPosition.Distance2D(me)) return;
+                if ((bloodthorn != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(bloodthorn.Name) && bloodthorn.CanBeCasted() && bloodthorn.GetCastRange() > target.NetworkPosition.Distance2D(me)) ||
+                    (orchid != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(orchid.Name) && orchid.CanBeCasted() && orchid.GetCastRange() > target.NetworkPosition.Distance2D(me))) return;
+
                 //Game.PrintMessage("Trying to Hook.", MessageType.LogMessage);
+
                 if (!hookPredict.GetValue<bool>()) ability.UseAbility(target.NetworkPosition);
                 else ability.CastSkillShot(target, "pudge_meat_hook", soulring);
                 return;
             }
-            else if (ability.Name.Contains("dismember") && !dismember.IsInAbilityPhase && !me.IsChanneling())
+            else if (ability.Name.Contains("dismember") && !dismember.IsInAbilityPhase && !me.IsChanneling() && dismember.CanBeCasted())
             {
+                if ((ethereal != null && ethereal.CanBeCasted()) || 
+                    (dagon != null && dagon.CanBeCasted()) || 
+                    (veil != null && veil.CanBeCasted() && !target.HasModifier("modifier_item_veil_of_discord_debuff"))) return;
+
                 //Game.PrintMessage("Trying to dismember.", MessageType.LogMessage);
                 ability.UseAbility(target);
                 return;
@@ -169,20 +186,25 @@ namespace PudgePRO
             //}
         }
 
-        //public static void UseDagon()
-        //{
-        //    if (dagon == null
-        //        || !dagon.CanBeCasted()
-        //        || target.IsMagicImmune()
-        //        || !(target.NetworkPosition.Distance2D(me) - target.RingRadius <= dagon.CastRange)
-        //        || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled("item_dagon")
-        //        || !IsFullDebuffed()) return;
-        //    //|| (!Utils.SleepCheck("PudgePROebsleep"))) return;          
+        public static void UseDagon()
+        {
+            if (dagon == null
+                || !dagon.CanBeCasted()
+                || target.IsMagicImmune()
+                || !(target.NetworkPosition.Distance2D(me) - target.RingRadius <= dagon.GetCastRange())
+                || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled("item_dagon")
+                || !IsFullDebuffed()
+                || !Utils.SleepCheck("PudgePROdagonSleep")) return;
+            //|| !Utils.SleepCheck("PudgePROebsleep")) return;
 
-        //    dagon.UseAbility(target);
-        //}
+            if (dismember != null && (me.IsChanneling() || dismember.IsInAbilityPhase)) return;
 
-            public static void UseRot()
+            //Game.PrintMessage("Using dagon.", MessageType.LogMessage);
+            dagon.UseAbility(target);
+            Utils.Sleep(100, "PudgePROdagonSleep");
+        }
+
+        public static void UseRot()
         {
             if (rot == null || !rot.CanBeCasted() || rot.IsInAbilityPhase || !Utils.SleepCheck("PudgePROrotCheck") ||
                 !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(rot.Name)) return;
@@ -210,45 +232,83 @@ namespace PudgePRO
                 me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(item.Name))// || !Utils.SleepCheck("PudgePROitemSleep"))
                 return;
 
-            //if (item.Name.Contains("veil") && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
-            //{
-            //    item.UseAbility(target.NetworkPosition);
-            //    return;
-            //}
+            if (item.Name.Contains("veil") && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
+            {
+                if (Utils.SleepCheck("PudgePROveilSleep"))
+                {
+                    if (dismember != null && (me.IsChanneling() || dismember.IsInAbilityPhase)) return;
 
-            //if (item.Name.Contains("ethereal") && IsFullDebuffed())
-            //{
-            //    item.UseAbility(target);
-            //    //Utils.Sleep(me.NetworkPosition.Distance2D(target.NetworkPosition) / 1200 * 1000, "PudgePROebsleep");
-            //    return;
-            //}
+                    //Game.PrintMessage("Using veil.", MessageType.LogMessage);
+                    item.UseAbility(target.NetworkPosition);
+                    Utils.Sleep(100, "PudgePROveilSleep");
+                }
+                return;
+            }
+
+            if (item.Name.Contains("ethereal"))// && IsFullDebuffed())
+            {
+                if (Utils.SleepCheck("PudgePROetherealSleep") && ethereal.CanBeCasted() && !ethereal.IsInAbilityPhase)
+                {
+                    if (dismember != null && (me.IsChanneling() || dismember.IsInAbilityPhase)) return;
+
+                    //Game.PrintMessage("Using ethereal.", MessageType.LogMessage);
+                    item.UseAbility(target);
+                    Utils.Sleep(100, "PudgePROetherealSleep");
+                    //Utils.Sleep(me.NetworkPosition.Distance2D(target.NetworkPosition) / 1200 * 1000, "PudgePROebsleep");
+                }
+                return;
+            }
             if ((item.Name.Contains("urn") && urn.CurrentCharges > 0 && me.Distance2D(target) <= 400))// && Utils.SleepCheck("urn")))
             {
+                //Game.PrintMessage("Using urn.", MessageType.LogMessage);
                 item.UseAbility(target);
                 //Utils.Sleep(240, "urn");
                 //Utils.Sleep(100, "PudgePROitemSleep");
                 return;
             }
 
-            if (item.IsAbilityBehavior(AbilityBehavior.UnitTarget)) //&& !item.Name.Contains("item_dagon"))
+            if (item.IsAbilityBehavior(AbilityBehavior.UnitTarget) && !item.Name.Contains("item_dagon"))
             {
-                if (item.Name.Contains("force"))
+                if (item.Name.Contains("sheep"))
                 {
+                    if ((dismember != null && dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me) && dismember.CanBeCasted()) ||
+                        me.IsChanneling() || me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !sheep.CanBeCasted()) return;
+
+                    //Game.PrintMessage("Using SheepStick.", MessageType.LogMessage);
+                    item.UseAbility(target);
+                    return;
+                }
+                if (item.Name.Contains("glimmer"))
+                {
+                    //Game.PrintMessage("Using glimmer.", MessageType.LogMessage);
                     item.UseAbility(me);
                     return;
                 }
+                //if (item.Name.Contains("orchid") || item.Name.Contains("bloodthorn"))
+                //{
+                //    if ((dismember != null && dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me) && dismember.CanBeCasted()) ||
+                //        me.IsChanneling() || me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !sheep.CanBeCasted()) return;
+
+                //    //Game.PrintMessage("Using SheepStick.", MessageType.LogMessage);
+                //    item.UseAbility(target);
+                //    return;
+                //}
                 //if (item.Name.Contains("bottle"))
                 //{
                 //    item.UseAbility(me);
                 //    return;
                 //}
+                if (me.IsChanneling() || me.Spellbook.Spells.Any(x => x.IsInAbilityPhase)) return;
+
+                //Game.PrintMessage("Using ITEM.", MessageType.LogMessage);
                 item.UseAbility(target);
                 //Utils.Sleep(100, "PudgePROitemSleep");
                 return;
             }
 
-            if (item.IsAbilityBehavior(AbilityBehavior.Point))
+            if (item.IsAbilityBehavior(AbilityBehavior.Point) && !item.Name.Contains("veil"))
             {
+                //Game.PrintMessage("Using ITEM 2.", MessageType.LogMessage);
                 item.UseAbility(target.NetworkPosition);
                 //Utils.Sleep(100, "PudgePROitemSleep");
                 return;
@@ -256,36 +316,40 @@ namespace PudgePRO
 
             if (item.IsAbilityBehavior(AbilityBehavior.Immediate))
             {
+                //Game.PrintMessage("Using ITEM 3.", MessageType.LogMessage);
                 item.UseAbility();
                 //Utils.Sleep(100, "PudgePROitemSleep");
             }
         }
 
-        //public static bool IsFullDebuffed()
-        //{
-        //    if (
-        //        (veil != null && veil.CanBeCasted() &&
-        //         Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(veil.Name) &&
-        //         !target.HasModifier("modifier_item_veil_of_discord_debuff"))
-        //        ||
-        //        (ethereal != null && //ethereal.CanBeCasted() &&
-        //         Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(ethereal.Name) &&
-        //         !target.HasModifier("modifier_item_ethereal_blade_slow"))
-        //        )
-        //        return false;
-        //    return true;
-        //}
+        public static bool IsFullDebuffed()
+        {
+            if (
+                (veil != null && veil.CanBeCasted() &&
+                 Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(veil.Name) &&
+                 !target.HasModifier("modifier_item_veil_of_discord_debuff"))
+                ||
+                (ethereal != null && ethereal.CanBeCasted() &&
+                 Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(ethereal.Name) &&
+                 !target.HasModifier("modifier_item_ethereal_blade_slow"))
+                )
+                return false;
+            return true;
+        }
 
         public static bool AllOnCooldown()
         {
             if (
                 (hook.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= hook.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(hook.Name))
                 || (dismember.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= dismember.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dismember.Name))
-                //|| (dagon.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= dagon.CastRange)
-                //|| (sheep.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= sheep.CastRange)
-                //|| (veil.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= veil.CastRange && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
-                //|| (ethereal.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= ethereal.CastRange)
-                || (shivas.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= shivas.CastRange)
+                || (dagon.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= dagon.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dagon.Name))
+                || (sheep.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= sheep.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(sheep.Name))
+                || (bloodthorn.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= bloodthorn.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(bloodthorn.Name))
+                || (orchid.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= orchid.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(orchid.Name))
+                || (veil.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= veil.CastRange && !target.HasModifier("modifier_item_veil_of_discord_debuff") && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(veil.Name))
+                || (ethereal.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= ethereal.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(ethereal.Name))
+                || (shivas.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= shivas.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(shivas.Name))
+                || (glimmer.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= glimmer.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(glimmer.Name))
                 )
                 return false;
             return true;
@@ -331,7 +395,7 @@ namespace PudgePRO
 
             blink.UseAbility(blinkLocation); 
 
-            Utils.Sleep(200, "PudgePROblink");
+            Utils.Sleep(100, "PudgePROblink");
         }
 
         public static void UseForceStaff()
@@ -361,17 +425,17 @@ namespace PudgePRO
 
             if (safeForce.GetValue<bool>() && (meForceAngle + 0.1f >= meTargetAngle && meForceAngle - 0.1f <= meTargetAngle))
             {
-                Game.PrintMessage("Safe Force", MessageType.LogMessage);
+                //Game.PrintMessage("Safe Force", MessageType.LogMessage);
                 forcestaff.UseAbility(me);
             }
             else if (!safeForce.GetValue<bool>() && targetPosition.Distance2D(newPosition) < tToMeDist)
             {
-                Game.PrintMessage("YOLO Force", MessageType.LogMessage);
+                //Game.PrintMessage("YOLO Force", MessageType.LogMessage);
                 forcestaff.UseAbility(me);
             }
             else return;
 
-            Utils.Sleep(200, "PudgePROforceStaff");
+            Utils.Sleep(100, "PudgePROforceStaff");
         }
 
         //public void BadHook(object s, ElapsedEventArgs args)

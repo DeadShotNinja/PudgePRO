@@ -85,11 +85,27 @@ namespace PudgePRO
 
                 UseBlink();
 
+                if (!Utils.SleepCheck("PudgePROblink")) return;
+
                 UseForceStaff();
 
-                UseRot();
+                if (!Utils.SleepCheck("PudgePROforceStaff")) return;
 
-                UseItem(ghost, 1000);
+                if (Utils.SleepCheck("PudgePROsheepThornSleep"))
+                {                    
+                    UseItem(bloodthorn, bloodthorn.GetCastRange());
+                    UseItem(orchid, orchid.GetCastRange());
+                    UseItem(sheep, sheep.GetCastRange());
+                    UseItem(ghost, 1000);
+                    UseItem(glimmer, 1000);
+                    Utils.Sleep(100, "PudgePROsheepThornSleep");
+                }
+
+                UseRot();
+                
+                UseItem(veil, veil.GetCastRange());
+                UseItem(ethereal, ethereal.GetCastRange());
+                UseDagon();
                 UseItem(urn, urn.GetCastRange());
                 UseItem(shivas, shivas.GetCastRange());
 
@@ -100,19 +116,21 @@ namespace PudgePRO
                     Orbwalk();
                     Utils.Sleep(100, "PudgePROorbwalkSleep");
                 }
-                else if (dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me) && 
-                    dismember.CanBeCasted() && !dismember.IsInAbilityPhase && !me.IsChanneling())// && Utils.SleepCheck("PudgePROupclose"))
+                else if (dismember != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dismember.Name) && dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me) && 
+                    dismember.CanBeCasted() && !dismember.IsInAbilityPhase && !me.IsChanneling() && Utils.SleepCheck("PudgePROcomboSleep"))
                 {
                     //Game.PrintMessage("PRE-DISMEMBERING.", MessageType.LogMessage);
                     CastAbility(dismember, dismember.GetCastRange() + me.HullRadius);
-                    //Utils.Sleep(100, "PudgePROupclose");
+                    Utils.Sleep(100, "PudgePROcomboSleep");
                 }
-                else if (hookRange >= target.NetworkPosition.Distance2D(me) && hook.CanBeCasted() && !dismember.IsInAbilityPhase && 
+                else if (((hook != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(hook.Name)) || 
+                    (dismember != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dismember.Name))) && 
+                    hookRange >= target.NetworkPosition.Distance2D(me) && hook.CanBeCasted() && !dismember.IsInAbilityPhase && 
                     !me.IsChanneling() && Utils.SleepCheck("PudgePROcomboSleep"))
                 {
                     //Game.PrintMessage("COMBO WORKING", MessageType.LogMessage);
                     CastAbility(hook, hook.GetCastRange());
-                    CastAbility(dismember, hook.GetCastRange());
+                    CastAbility(dismember, hook.GetCastRange() + me.HullRadius);
                     Utils.Sleep(100, "PudgePROcomboSleep");
                 }
             }
