@@ -9,9 +9,14 @@ namespace PudgePRO
             heroName = "npc_dota_hero_pudge";
             Menu = new Menu(AssemblyName, AssemblyName, true, heroName, true);
             comboKey = new MenuItem("comboKey", "Combo Key").SetValue(new KeyBind(70, KeyBindType.Press)).SetTooltip("Full combo in logical order.");
+            //allyHookKey = new MenuItem("allyHookKey", "Ally Hook Key").SetValue(new KeyBind(71, KeyBindType.Press)).SetTooltip("Save closest to mouse ally with hook (no targeting particles dislplayed).");
             useBlink = new MenuItem("useBlink", "Use Blink Dagger").SetValue(true).SetTooltip("Will auto blink (with logic) while combo key is held down.");
             soulRing = new MenuItem("soulRing", "Soulring").SetValue(true).SetTooltip("Will use soul ring before combo.");
             hookPredict = new MenuItem("hookPredict", "Auto Hook Prediction").SetValue(true).SetTooltip("Will auto predict target location for EZ hooks.");
+            badHook = new MenuItem("badHook", "Bad Hook Check").SetValue(true).SetTooltip("Will auto cancel a POSSIBLE bad hook. TESTING: Use sliders below to set the timings to your liking.");
+            comboSleep = new MenuItem("comboSleep", "Combo Sleep Timer").SetValue(new Slider(100, 0, 1000)).SetTooltip("TESTING: Sleep time before trying another hook. DEFAULT: 100");
+            stopWait = new MenuItem("stopWait", "Rotate Chance Timer").SetValue(new Slider(100, 0, 1000)).SetTooltip("TESTING: How long to wait before checking if target rotated (after hook casted). DEFAULT: 100");
+            rotationTolerance = new MenuItem("rotationTolerance", "Rotation Tolerancy").SetValue(new Slider(1, 0, 10)).SetTooltip("TESTING: How much can the target rotate before it's a POSSIBLE bad hook. DEFAULT: 1");
             safeForce = new MenuItem("forcePredict", "Safe Force Staff").SetValue(true).SetTooltip("Will only forcestaff if you're facing the target.");
             //toggleHookTime = new MenuItem("toggleHookTime", "Bad Hook STOP").SetValue(new Slider(100, 200, 280)).SetTooltip("TESTING: Prevent fail hooks.");
             //badHook = new MenuItem("badHook", "Fail Hook Ticks").SetValue(new Slider(70, 1, 75)).SetTooltip("TESTING: Will STOP action within selected ticks to prevent POSSIBLE bad hooks.");
@@ -25,12 +30,15 @@ namespace PudgePRO
             items = new Menu("Items", "Items");
             abilities = new Menu("Abilities", "Abilities");
             targetOptions = new Menu("Target Options", "Target Options");
+            hookPredictions = new Menu("Hook Predictions", "Hook Predictions");
 
             Menu.AddItem(comboKey);
+            //Menu.AddItem(allyHookKey);
 
             Menu.AddSubMenu(items);
             Menu.AddSubMenu(abilities);
             Menu.AddSubMenu(targetOptions);
+            abilities.AddSubMenu(hookPredictions);
 
             items.AddItem(new MenuItem("items", "Items").SetValue(new AbilityToggler(itemsDictionary)));
             items.AddItem(useBlink);
@@ -38,9 +46,13 @@ namespace PudgePRO
             //items.AddItem(SafeBlinkRange);
             items.AddItem(soulRing);
             //items.AddItem(fountainBottle);
-            //items.AddItem(bladeMail);
+            //items.AddItem(bladeMail);            
+            hookPredictions.AddItem(hookPredict);
+            hookPredictions.AddItem(badHook);
+            hookPredictions.AddItem(comboSleep);
+            hookPredictions.AddItem(stopWait);
+            hookPredictions.AddItem(rotationTolerance);
             abilities.AddItem(new MenuItem("abilities", "Abilities").SetValue(new AbilityToggler(abilitiesDictionary)));
-            abilities.AddItem(hookPredict);
             targetOptions.AddItem(moveMode);
             targetOptions.AddItem(ClosestToMouseRange);
             targetOptions.AddItem(drawTarget);

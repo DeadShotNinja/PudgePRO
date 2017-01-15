@@ -45,6 +45,8 @@ namespace PudgePRO
                 {"item_urn_of_shadows", true}
         };
 
+        //public static Dictionary<float, double> RotSpeedDictionary = new Dictionary<float, double>();
+
         public static Menu Menu;
 
         public static Menu items;
@@ -53,7 +55,11 @@ namespace PudgePRO
 
         public static Menu targetOptions;
 
+        public static Menu hookPredictions;
+
         public static MenuItem comboKey;
+
+        //public static MenuItem allyHookKey;
 
         public static MenuItem drawTarget;
 
@@ -69,6 +75,14 @@ namespace PudgePRO
 
         public static MenuItem hookPredict;
 
+        public static MenuItem badHook;
+
+        public static MenuItem comboSleep;
+
+        public static MenuItem stopWait;
+
+        public static MenuItem rotationTolerance;
+
         //public static MenuItem badHook;
 
         //public static MenuItem toggleHookTime;
@@ -79,7 +93,7 @@ namespace PudgePRO
 
         public static MenuItem useBlink;
 
-        public static bool loaded, rotOn, isInRange;
+        public static bool loaded, rotOn, isInRange, targetRotate = false, targetStop = false;
 
         //public static float minDistHook;
 
@@ -87,13 +101,15 @@ namespace PudgePRO
 
         public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer; // bottle
 
-        public static Hero me, target;
+        public static Hero me, target;//, ally;
 
-        public static uint  aetherRange;
+        public static uint aetherRange, comboSleepGet, stopWaitGet, rotationToleranceGet;
 
         public static Vector2 iconSize, screenPosition;
 
-        //public static Vector3 hookLocation;
+        public static float targetFacing, targetFacingNew, walkStraight, sleepTimer, straightTimer, rotTolerance;
+
+        public static double rotationSpeed;
 
         public static DotaTexture heroIcon;
 

@@ -36,6 +36,54 @@ namespace PudgePRO
             Utils.Sleep(1000, "PudgePROGetAbilities");
         }
 
+        public static void GetPredictionValues()
+        {
+            if (!Utils.SleepCheck("PudgePROGetPredictionValues")) return;
+            comboSleepGet = (uint)comboSleep.GetValue<Slider>().Value;
+            stopWaitGet = (uint)stopWait.GetValue<Slider>().Value;
+            rotationToleranceGet = (uint)rotationTolerance.GetValue<Slider>().Value;
+
+            switch (rotationToleranceGet)
+            {
+                case 0:
+                    rotTolerance = 0.0f;
+                    break;
+                case 1:
+                    rotTolerance = 0.1f;
+                    break;
+                case 2:
+                    rotTolerance = 0.2f;
+                    break;
+                case 3:
+                    rotTolerance = 0.3f;
+                    break;
+                case 4:
+                    rotTolerance = 0.4f;
+                    break;
+                case 5:
+                    rotTolerance = 0.5f;
+                    break;
+                case 6:
+                    rotTolerance = 0.6f;
+                    break;
+                case 7:
+                    rotTolerance = 0.7f;
+                    break;
+                case 8:
+                    rotTolerance = 0.8f;
+                    break;
+                case 9:
+                    rotTolerance = 0.9f;
+                    break;
+                case 10:
+                    rotTolerance = 1.0f;
+                    break;
+                default:
+                    break;
+            }
+            Utils.Sleep(1000, "PudgePROGetPredictionValues");
+        }
+
         //public static bool HasModifiers()
         //{
         //    if (target.HasModifiers(modifiersNames, false) ||
@@ -132,7 +180,15 @@ namespace PudgePRO
             if (ability == null || !ability.CanBeCasted() || ability.IsInAbilityPhase ||
                 !target.IsValidTarget(range, true, me.NetworkPosition) || me.IsChanneling() ||
                 !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(ability.Name) ||
-                !Utils.SleepCheck("PudgePROcastSleep")) return;
+                !Utils.SleepCheck("PudgePROcastSleep") || !Utils.SleepCheck("PudgePRObadHookSleep")) return;
+
+            //walkStraight = Prediction.StraightTime(target);
+
+            //if (target.NetworkActivity != NetworkActivity.Move)
+            //{
+            //    Game.PrintMessage("Target not moving.", MessageType.LogMessage);
+            //    walkStraight = 0;
+            //}
 
             Utils.Sleep(100, "PudgePROcastSleep");
 
@@ -141,6 +197,8 @@ namespace PudgePRO
                 dismember.GetCastRange() + me.HullRadius < target.NetworkPosition.Distance2D(me)))
             {
                 //hookLocation = Prediction.SkillShotXYZ(me, target, (float)hook.GetHitDelay(target, hook.Name), hook.GetProjectileSpeed(hook.Name), hook.GetRadius(hook.Name));
+                //var targetFacingLocation = target.InFront(100);
+                //var targetFacingAngle = target.Position.ToVector2().FindAngleBetween(targetFacingLocation.ToVector2(), true);
                 
                 if (sheep != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(sheep.Name) && sheep.CanBeCasted() && sheep.GetCastRange() > target.NetworkPosition.Distance2D(me)) return;
                 if ((bloodthorn != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(bloodthorn.Name) && bloodthorn.CanBeCasted() && bloodthorn.GetCastRange() > target.NetworkPosition.Distance2D(me)) ||
@@ -148,9 +206,27 @@ namespace PudgePRO
 
                 //Game.PrintMessage("Trying to Hook.", MessageType.LogMessage);
 
-                if (!hookPredict.GetValue<bool>()) ability.UseAbility(target.NetworkPosition);
-                else ability.CastSkillShot(target, "pudge_meat_hook", soulring);
-                return;
+                if (!hookPredict.GetValue<bool>())
+                {
+                    //Game.PrintMessage("Raw hook.", MessageType.LogMessage);
+                    ability.UseAbility(target.NetworkPosition);
+                }
+                else
+                {
+                    //Game.PrintMessage("Trying to Hook.", MessageType.LogMessage);
+                    ability.CastSkillShot(target, "pudge_meat_hook", soulring);
+
+                    //if (walkStraight < 500)
+                    //{
+                    //    Game.PrintMessage("NOT ENOUGH TIME TO HOOK." + walkStraight, MessageType.LogMessage);
+                    //    me.Stop();
+                    //}
+
+                    if (badHook.GetValue<bool>()) Utils.Sleep(stopWaitGet, "PudgePRObadHookSleep");
+
+                    //targetFacing = targetFacingAngle;
+                }
+                //return;
             }
             else if (ability.Name.Contains("dismember") && !dismember.IsInAbilityPhase && !me.IsChanneling() && dismember.CanBeCasted())
             {
@@ -160,7 +236,7 @@ namespace PudgePRO
 
                 //Game.PrintMessage("Trying to dismember.", MessageType.LogMessage);
                 ability.UseAbility(target);
-                return;
+                //return;
             }
 
 
@@ -185,6 +261,21 @@ namespace PudgePRO
             //    return;
             //}
         }
+
+        //public static bool TargetTurning()
+        //{
+        //    targetFacingNew = targetFacing;
+
+        //    if (!Utils.SleepCheck("PudgePROtargetTurning")) return false;
+
+        //        Game.PrintMessage("targetFacing: " + targetFacingNew + "targetFacingAngle: " + targetFacing, MessageType.LogMessage);
+
+        //    Utils.Sleep(50, "PudgePROtargetTurning");
+
+        //    if (targetFacingNew >= targetFacing + 0.1f && targetFacing <= targetFacing - 0.1f) return true;
+        //    else return false;
+            
+        //}
 
         public static void UseDagon()
         {
@@ -401,7 +492,7 @@ namespace PudgePRO
         public static void UseForceStaff()
         {
             if (forcestaff == null || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) ||
-                !forcestaff.CanBeCasted() || !Utils.SleepCheck("PudgePROforceStaff")) return;
+                !forcestaff.CanBeCasted() || me.IsChanneling() || !Utils.SleepCheck("PudgePROforceStaff")) return;
 
             var fullForceRange = forcestaff.GetCastRange();
             var tToMeDist = target.NetworkPosition.Distance2D(me);
@@ -417,53 +508,29 @@ namespace PudgePRO
                     currentPosition.Y + fullForceRange * (float)Math.Sin(meTargetAngle),
                     100);
 
+            if (dismember != null && dismember.CanBeCasted() && tToMeDist < dismember.GetCastRange() + me.HullRadius) return;
             //me.Move(newPosition);
             //var turnTime = currentPosition.FindAngleForTurnTime(targetPosition);
             //Game.PrintMessage("Range is: " + fullForceRange, MessageType.LogMessage);
 
             //Game.PrintMessage("Angles: " + meForceAngle + " and " + meTargetAngle, MessageType.LogMessage);
 
-            if (safeForce.GetValue<bool>() && (meForceAngle + 0.1f >= meTargetAngle && meForceAngle - 0.1f <= meTargetAngle))
+            if (safeForce.GetValue<bool>() && (meForceAngle + 0.1f >= meTargetAngle && meForceAngle - 0.1f <= meTargetAngle) && !me.IsChanneling())
             {
                 //Game.PrintMessage("Safe Force", MessageType.LogMessage);
                 forcestaff.UseAbility(me);
+                //Utils.Sleep(100, "PudgePROforceStaff");
             }
-            else if (!safeForce.GetValue<bool>() && targetPosition.Distance2D(newPosition) < tToMeDist)
+            else if (!safeForce.GetValue<bool>() && targetPosition.Distance2D(newPosition) < tToMeDist && !me.IsChanneling())
             {
                 //Game.PrintMessage("YOLO Force", MessageType.LogMessage);
                 forcestaff.UseAbility(me);
+                //Utils.Sleep(100, "PudgePROforceStaff");
             }
             else return;
 
             Utils.Sleep(100, "PudgePROforceStaff");
-        }
-
-        //public void BadHook(object s, ElapsedEventArgs args)
-        //{
-        //    ///// PART OF THIS CODE WAS USED FROM VickTheRock (Credits for the logic) /////
-
-        //    target = me.ClosestToMouseTarget(ClosestToMouseRange.GetValue<Slider>().Value);
-
-        //    minDistHook = target.HullRadius + 27;
-
-        //    if (target == null || !target.IsValid || target.IsIllusion || !target.IsAlive || target.IsInvul()) return;
-
-        //    //if (target.HasModifier("modifier_spirit_breaker_charge_of_darkness")) return;
-
-        //    double travelTime = hookLocation.Distance2D(me.Position) / 1600;
-        //    Vector3 ePosition = new Vector3((float)((travelTime) * Math.Cos(target.RotationRad) * target.MovementSpeed + target.NetworkPosition.X),
-        //                                   (float)((travelTime) * Math.Sin(target.RotationRad) * target.MovementSpeed + target.NetworkPosition.Y), 0);
-        //    if (target != null && target.NetworkActivity == NetworkActivity.Move && ePosition.Distance2D(hookLocation) > minDistHook + Menu.Item("badHook").GetValue<Slider>().Value)
-        //    {
-        //        me.Stop();
-        //        time.Stop();
-        //    }
-        //    else
-        //    {
-        //        if (hook != null)
-        //            time.Stop();
-        //    }
-        //}
+        }       
 
         public static float GetDistance2D(Vector3 p1, Vector3 p2)
         {
