@@ -18,6 +18,7 @@ namespace PudgePRO
             stopWait = new MenuItem("stopWait", "Rotate Chance Timer").SetValue(new Slider(100, 0, 1000)).SetTooltip("TESTING: How long to wait before checking if target rotated (after hook casted). DEFAULT: 100");
             rotationTolerance = new MenuItem("rotationTolerance", "Rotation Tolerancy").SetValue(new Slider(1, 0, 10)).SetTooltip("TESTING: How much can the target rotate before it's a POSSIBLE bad hook. DEFAULT: 1");
             safeForce = new MenuItem("forcePredict", "Safe Force Staff").SetValue(true).SetTooltip("Will only forcestaff if you're facing the target.");
+            itemRange = new MenuItem("itemRange", "Def. Item Use Range").SetValue(new Slider(1000, 1, 2000)).SetTooltip("The range at whitch to use defensive items (ex. glimmer, pipe, etc.");
             //toggleHookTime = new MenuItem("toggleHookTime", "Bad Hook STOP").SetValue(new Slider(100, 200, 280)).SetTooltip("TESTING: Prevent fail hooks.");
             //badHook = new MenuItem("badHook", "Fail Hook Ticks").SetValue(new Slider(70, 1, 75)).SetTooltip("TESTING: Will STOP action within selected ticks to prevent POSSIBLE bad hooks.");
             //fountainBottle = new MenuItem("fountainBottle", "Bottle at Fountain").SetValue(true).SetTooltip("Will auto use bottle while at fountain.");            
@@ -45,6 +46,7 @@ namespace PudgePRO
             items.AddItem(safeForce);
             //items.AddItem(SafeBlinkRange);
             items.AddItem(soulRing);
+            items.AddItem(itemRange);
             //items.AddItem(fountainBottle);
             //items.AddItem(bladeMail);            
             hookPredictions.AddItem(hookPredict);

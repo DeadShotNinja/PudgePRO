@@ -31,6 +31,9 @@ namespace PudgePRO
 
         public static Dictionary<string, bool> itemsDictionary = new Dictionary<string, bool>
         {
+                {"item_crimson_guard", true},
+                {"item_hood_of_defiance", true},
+                {"item_pipe", true},
                 {"item_sheepstick", true},
                 {"item_bloodthorn", true},
                 {"item_orchid", true},
@@ -83,6 +86,8 @@ namespace PudgePRO
 
         public static MenuItem rotationTolerance;
 
+        public static MenuItem itemRange;
+
         //public static MenuItem badHook;
 
         //public static MenuItem toggleHookTime;
@@ -99,11 +104,11 @@ namespace PudgePRO
 
         public static Ability hook, rot, dismember;
 
-        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer; // bottle
+        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe; // bottle
 
         public static Hero me, target;//, ally;
 
-        public static uint aetherRange, comboSleepGet, stopWaitGet, rotationToleranceGet;
+        public static uint aetherRange, comboSleepGet, stopWaitGet, rotationToleranceGet, itemUseRange;
 
         public static Vector2 iconSize, screenPosition;
 

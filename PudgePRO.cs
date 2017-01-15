@@ -162,8 +162,8 @@ namespace PudgePRO
                     UseItem(bloodthorn, bloodthorn.GetCastRange());
                     UseItem(orchid, orchid.GetCastRange());
                     UseItem(sheep, sheep.GetCastRange());
-                    UseItem(ghost, 1000);
-                    UseItem(glimmer, 1000);
+                    UseItem(ghost, itemUseRange);
+                    UseItem(glimmer, itemUseRange);
                     Utils.Sleep(100, "PudgePROsheepThornSleep");
                 }
 
@@ -174,6 +174,9 @@ namespace PudgePRO
                 UseDagon();
                 UseItem(urn, urn.GetCastRange());
                 UseItem(shivas, shivas.GetCastRange());
+                UseItem(pipe, itemUseRange);
+                UseItem(hood, itemUseRange);
+                UseItem(crimson, itemUseRange);
 
                 if ((hookRange < target.NetworkPosition.Distance2D(me) || !MeHasMana()) && !me.IsChanneling() &&
                     !me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) && Utils.SleepCheck("PudgePROorbwalkSleep"))
@@ -231,8 +234,16 @@ namespace PudgePRO
                     CastAbility(dismember, hook.GetCastRange() + me.HullRadius);
                     //Utils.Sleep(100, "PudgePROcomboSleep");
                 }
+                else if ((hook != null ||
+                    (dismember != null && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dismember.Name))) &&
+                    hookRange >= target.NetworkPosition.Distance2D(me) && !hook.CanBeCasted() && !dismember.IsInAbilityPhase &&
+                    !me.IsChanneling() && Utils.SleepCheck("PudgePROdismemSleep"))
+                {
+                    Utils.Sleep(100, "PudgePROdismemSleep");
+                    CastAbility(dismember, hook.GetCastRange() + me.HullRadius);
+                }
 
-                if (hook != null && !hook.CanBeCasted() && targetStop && Utils.SleepCheck("PudgePROidleSleep"))
+                    if (hook != null && !hook.CanBeCasted() && targetStop && Utils.SleepCheck("PudgePROidleSleep"))
                 {
                     //Game.PrintMessage("resetting idle", MessageType.LogMessage);
                 

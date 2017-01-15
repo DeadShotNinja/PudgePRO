@@ -30,6 +30,9 @@ namespace PudgePRO
             orchid = me.FindItem("item_orchid");
             bloodthorn = me.FindItem("item_bloodthorn");
             glimmer = me.FindItem("item_glimmer_cape");
+            crimson = me.FindItem("item_crimson_guard");
+            hood = me.FindItem("item_hood_of_defiance");
+            pipe = me.FindItem("item_pipe");
             hook = me.FindSpell("pudge_meat_hook");
             rot = me.FindSpell("pudge_rot");
             dismember = me.FindSpell("pudge_dismember");
@@ -42,6 +45,9 @@ namespace PudgePRO
             comboSleepGet = (uint)comboSleep.GetValue<Slider>().Value;
             stopWaitGet = (uint)stopWait.GetValue<Slider>().Value;
             rotationToleranceGet = (uint)rotationTolerance.GetValue<Slider>().Value;
+
+            // Other options from menu.
+            itemUseRange = (uint)itemRange.GetValue<Slider>().Value;
 
             switch (rotationToleranceGet)
             {
