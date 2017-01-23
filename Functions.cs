@@ -1,12 +1,21 @@
 ﻿using System;
+//using System.Collections.Concurrent;
+//using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
-using System.Reflection;
+//using System.Timers;
+//using System.Reflection;
 using Ensage;
 using Ensage.Common;
+//using Ensage.Common.AbilityInfo;
+//using Ensage.Common.Enums;
 using Ensage.Common.Menu;
 using Ensage.Common.Extensions;
+using static Ensage.Common.Extensions.SharpDX.Vector2Extensions;
+using Ensage.Common.Objects;
+//using Ensage.Common.Objects.UtilityObjects;
 using SharpDX;
+
+//using global::SharpDX;
 
 namespace PudgePRO
 {
@@ -107,7 +116,463 @@ namespace PudgePRO
         //        return true;
         //    Utils.Sleep(100, "PudgePROIsInFountain");
         //    return false;
+        //}       
+
+        //public static float DistanceToLineSegment(
+        //this Vector2 point,
+        //Vector2 segmentStart,
+        //Vector2 segmentEnd,
+        //bool onlyIfOnSegment = false)
+        //{
+        //    var objects = point.ProjectOn(segmentStart, segmentEnd);
+
+        //    return objects.IsOnSegment || onlyIfOnSegment == false
+        //               ? Vector2.Distance(objects.SegmentPoint, point)
+        //               : float.MaxValue;
         //}
+
+        public static Hero ClosestToMouseAlly(Unit source, float rangeT = 1000)
+        {
+            var mousePosition = Game.MousePosition;
+            Hero closestHero = null;
+            foreach (var x in Heroes.All)
+            {
+                if (!(x.IsValid && x.Team == source.Team && x != me && !x.IsIllusion && x.IsAlive && x.IsVisible
+                      && x.Distance2D(mousePosition) <= rangeT
+                      && !x.HasModifier("modifier_skeleton_king_reincarnation_scepter_active")))
+                {
+                    continue;
+                }
+
+                if (closestHero == null || closestHero.Distance2D(mousePosition) > x.Distance2D(mousePosition))
+                {
+                    closestHero = x;
+                }
+            }
+
+            return closestHero;
+        }
+
+        //public static Vector3 SkillShotTEST(Unit source, Unit target, float delay, float speed, float radius)
+        //{
+        //    if (Prediction.IsIdle(target))
+        //    {
+        //        Game.PrintMessage("TARGET IDLE", MessageType.LogMessage);
+        //        return target.Position;
+        //    }
+
+        //    if (!(speed < 6000) || speed <= 0)
+        //    {
+        //        Game.PrintMessage("TARGET TOO FAST???", MessageType.LogMessage);
+        //        return Prediction.PredictedXYZ(target, delay);
+        //    }
+
+        //    var predict = Prediction.PredictedXYZ(target, delay);
+        //    var sourcePos = source.Position;
+        //    var reachTime = Prediction.CalculateReachTime(target, speed, predict - sourcePos);
+        //    predict = Prediction.PredictedXYZ(target, delay + reachTime);
+
+        //    Game.PrintMessage("target: " + target.Name + " delay: " + delay + " ReachTime: " + reachTime, MessageType.LogMessage);
+
+        //    if (!(source.Distance2D(predict) > radius))
+        //    {
+        //        Game.PrintMessage("TARGET OUTSIDE OF RAD", MessageType.LogMessage);
+        //        return Prediction.PredictedXYZ(target, delay + reachTime);
+        //    }
+
+        //    if (target.MovementSpeed * ((predict.Distance2D(sourcePos) - radius) / speed) < radius)
+        //    {
+        //        sourcePos = (sourcePos - predict) * (sourcePos.Distance2D(predict) - radius)
+        //                    / sourcePos.Distance2D(predict) + predict;
+        //        reachTime = Prediction.CalculateReachTime(target, speed, predict - sourcePos);
+        //    }
+        //    else
+        //    {
+        //        sourcePos = (sourcePos - predict)
+        //                    * (sourcePos.Distance2D(predict)
+        //                       + target.MovementSpeed * ((predict.Distance2D(sourcePos) - radius) / speed) - radius)
+        //                    / sourcePos.Distance2D(predict) + predict;
+        //        reachTime = Prediction.CalculateReachTime(target, speed, predict - sourcePos);
+        //    }
+        //    Game.PrintMessage("RETURNING: " + target + (delay + reachTime), MessageType.LogMessage);
+        //    return Prediction.PredictedXYZ(target, delay + reachTime);
+        //}
+
+        public static bool CastSkillShotAlly(
+            Ability abilityA,
+            Unit targetA,
+            Vector3 sourcePositionA,
+            string abilityNameA = null,
+            Ability soulRingA = null)
+        {
+            //Utils.Sleep(100, "PudgePROCastSkillshot");
+
+            if (abilityA == null || !abilityA.IsValid)
+            {
+                //Game.PrintMessage("Return 1", MessageType.LogMessage);
+                return false;
+            }
+
+            if (targetA == null || !targetA.IsValid)
+            {
+                //Game.PrintMessage("Return 2", MessageType.LogMessage);
+                return false;
+            }
+
+            if (!Utils.SleepCheck("PudgePROCastSkillshotAlly" + abilityA.Handle))
+            {
+                //Game.PrintMessage("Return 3", MessageType.LogMessage);
+                return false;
+            }
+
+            var nameA = abilityNameA ?? abilityA.StoredName();
+            var ownerA = abilityA.Owner as Unit;
+            var positionA = sourcePositionA;
+            var delayA = abilityA.GetHitDelay(targetA, nameA);
+            var dataA = abilityA.CommonProperties();
+
+            // delay += data.AdditionalDelay;
+            if (targetA.IsInvul() && !Utils.ChainStun(targetA, delayA, null, false))
+            {
+                //Game.PrintMessage("Return 4", MessageType.LogMessage);
+                return false;
+            }
+
+            var xyzA = abilityA.GetPrediction(targetA, abilityName: nameA);
+            var radiusA = abilityA.GetRadius(nameA);
+            var rangeA = abilityA.TravelDistance();
+
+            if (dataA.AllyBlock)
+            {
+                if (
+                    Creeps.All.Any(
+                        x =>
+                            x.IsValid && x.IsAlive && x.Team == ownerA.Team && x.Distance2D(xyzA) <= rangeA
+                            && x.Distance2D(ownerA) < ownerA.Distance2D(targetA)
+                            && x.Position.ToVector2()
+                                .DistanceToLineSegment(sourcePositionA.ToVector2(), xyzA.ToVector2())
+                            <= radiusA + x.HullRadius))
+                {
+                    return false;
+                }
+
+                if (
+                    Heroes.GetByTeam(ownerA.Team)
+                          .Any(
+                              hero =>
+                                  hero.IsAlive && !hero.Equals(ownerA) && !hero.Equals(targetA)
+                                  && hero.Distance2D(xyzA) <= rangeA && hero.Distance2D(ownerA) < ownerA.Distance2D(targetA)
+                                  && hero.Position.ToVector2()
+                                         .DistanceToLineSegment(sourcePositionA.ToVector2(), xyzA.ToVector2())
+                                  <= radiusA + hero.HullRadius))
+                {
+                    return false;
+                }
+            }
+
+            if (dataA.EnemyBlock)
+            {
+                if (
+                    Creeps.All.Any(
+                        x =>
+                            x.IsValid && x.IsAlive && x.Team != ownerA.Team && x.Distance2D(xyzA) <= rangeA
+                            && x.Distance2D(ownerA) < ownerA.Distance2D(targetA)
+                            && x.Position.ToVector2()
+                                .DistanceToLineSegment(sourcePositionA.ToVector2(), xyzA.ToVector2())
+                            <= radiusA + x.HullRadius))
+                {
+                    return false;
+                }
+
+                if (
+                    Heroes.GetByTeam(ownerA.GetEnemyTeam())
+                          .Any(
+                              hero =>
+                                  hero.IsAlive && !hero.Equals(targetA) && hero.Distance2D(xyzA) <= rangeA
+                                  && hero.Distance2D(ownerA) < ownerA.Distance2D(targetA)
+                                  && hero.Position.ToVector2()
+                                         .DistanceToLineSegment(sourcePositionA.ToVector2(), xyzA.ToVector2())
+                                  <= radiusA + hero.HullRadius))
+                {
+                    return false;
+                }
+            }
+
+            var speedA = abilityA.GetProjectileSpeed(nameA);
+            var distanceXyzA = xyzA.Distance2D(positionA);
+
+            //Game.PrintMessage("xyz " + xyzA, MessageType.LogMessage);
+
+            //if (xyzA == null) Game.PrintMessage("xyz is null", MessageType.LogMessage);
+
+            if (!(distanceXyzA <= rangeA + radiusA + targetA.HullRadius))
+            {
+                //Game.PrintMessage("Return 5", MessageType.LogMessage);
+                //Game.PrintMessage("distanceXyz " + distanceXyzA + " range " + rangeA + " radius " + radiusA + " HullRadius " + targetA.HullRadius, MessageType.LogMessage);
+                return false;
+            }
+
+            if (distanceXyzA > rangeA)
+            {
+                xyzA = xyzA - positionA;
+                xyzA /= xyzA.Length();
+                xyzA *= rangeA;
+                xyzA += positionA;
+            }
+
+            // Console.WriteLine(ability.GetCastRange() + " " + radius);
+
+            if (soulRingA != null && abilityA.ManaCost > 0 && soulRingA.CanBeCasted())
+            {
+                soulRingA.UseAbility();
+            }
+
+            abilityA.UseAbility(xyzA);
+            return true;
+        }
+
+        public static bool CastSkillShotEnemy(
+            Ability abilityE,
+            Unit targetE,
+            string abilityNameE = null,
+            Ability soulRingE = null,
+            bool collisionCheckE = false)
+        {
+            if (abilityE == null || !abilityE.IsValid)
+            {
+                return false;
+            }
+
+            if (targetE == null || !targetE.IsValid)
+            {
+                return false;
+            }
+
+            return CastSkillShotEnemy(abilityE, targetE, abilityE.Owner.Position, abilityNameE, soulRingE, collisionCheckE);
+        }
+
+        public static bool CastSkillShotEnemy(
+            Ability abilityE,
+            Unit targetE,
+            Vector3 sourcePositionE,
+            string abilityNameE = null,
+            Ability soulRingE = null,
+            bool collisionCheckE = false)
+        {
+            if (abilityE == null || !abilityE.IsValid)
+            {
+                return false;
+            }
+
+            if (targetE == null || !targetE.IsValid)
+            {
+                return false;
+            }
+
+            if (!Utils.SleepCheck("PudgePROCastSkillshotEnemy" + abilityE.Handle))
+            {
+                return false;
+            }
+
+            var nameE = abilityNameE ?? abilityE.StoredName();
+            var ownerE = abilityE.Owner as Unit;
+            var positionE = sourcePositionE;
+            var delayE = abilityE.GetHitDelay(targetE, nameE);
+            var dataE = abilityE.CommonProperties();
+
+            // delay += data.AdditionalDelay;
+            if (targetE.IsInvul() && !Utils.ChainStun(targetE, delayE, null, false))
+            {
+                return false;
+            }
+
+            var xyzE = abilityE.GetPrediction(targetE, abilityName: nameE);
+
+            var radiusE = abilityE.GetRadius(nameE);
+            var rangeE = abilityE.TravelDistance();
+
+            if (dataE.AllyBlock)
+            {
+                if (
+                    Creeps.All.Any(
+                        x =>
+                            x.IsValid && x.IsAlive && x.Team == ownerE.Team && x.Distance2D(xyzE) <= rangeE
+                            && x.Distance2D(ownerE) < ownerE.Distance2D(targetE)
+                            && x.Position.ToVector2()
+                                .DistanceToLineSegment(sourcePositionE.ToVector2(), xyzE.ToVector2())
+                            <= radiusE + x.HullRadius))
+                {
+                    //Game.PrintMessage("AllyBlock", MessageType.LogMessage);
+                    return false;
+                }
+
+                if (
+                    Heroes.GetByTeam(ownerE.Team)
+                          .Any(
+                              hero =>
+                                  hero.IsAlive && !hero.Equals(ownerE) && !hero.Equals(targetE)
+                                  && hero.Distance2D(xyzE) <= rangeE && hero.Distance2D(ownerE) < ownerE.Distance2D(targetE)
+                                  && hero.Position.ToVector2()
+                                         .DistanceToLineSegment(sourcePositionE.ToVector2(), xyzE.ToVector2())
+                                  <= radiusE + hero.HullRadius))
+                {
+                    //Game.PrintMessage("AllyBlock", MessageType.LogMessage);
+                    return false;
+                }
+            }
+
+
+
+            if (dataE.EnemyBlock)
+            {
+                if (
+                    Creeps.All.Any(
+                        x =>
+                            x.IsValid && x.IsAlive && x.Team != ownerE.Team && x.Distance2D(xyzE) <= rangeE
+                            && x.Distance2D(ownerE) < ownerE.Distance2D(targetE)
+                            && x.Position.ToVector2()
+                                .DistanceToLineSegment(sourcePositionE.ToVector2(), xyzE.ToVector2())
+                            <= radiusE + x.HullRadius))
+                {
+                    //Game.PrintMessage("EnemyBlock", MessageType.LogMessage);
+                    return false;
+                }
+
+                if (
+                    Heroes.GetByTeam(ownerE.GetEnemyTeam())
+                          .Any(
+                              hero =>
+                                  hero.IsAlive && !hero.Equals(targetE) && hero.Distance2D(xyzE) <= rangeE
+                                  && hero.Distance2D(ownerE) < ownerE.Distance2D(targetE)
+                                  && hero.Position.ToVector2()
+                                         .DistanceToLineSegment(sourcePositionE.ToVector2(), xyzE.ToVector2())
+                                  <= radiusE + hero.HullRadius))
+                {
+                    //Game.PrintMessage("EnemyBlock", MessageType.LogMessage);
+                    return false;
+                }
+            }
+
+            var speedE = abilityE.GetProjectileSpeed(nameE);
+            var distanceXyzE = xyzE.Distance2D(positionE);
+            if (!(distanceXyzE <= rangeE + radiusE + targetE.HullRadius))
+            {
+                return false;
+            }
+
+            if (distanceXyzE > rangeE)
+            {
+                xyzE = xyzE - positionE;
+                xyzE /= xyzE.Length();
+                xyzE *= rangeE;
+                xyzE += positionE;
+            }
+
+            // Console.WriteLine(ability.GetCastRange() + " " + radius);          
+
+
+            if (abilityE.ManaCost > 0 && soulRingE.CanBeCasted())
+            {
+                soulRingE.UseAbility();
+            }
+
+            if (collisionCheckE == false) abilityE.UseAbility(xyzE);
+
+            predictedLocationVec = xyzE;
+
+            return true;
+        }
+
+
+        public static bool GetCastSkillShotEnemy(
+            Ability abilityE,
+            Unit targetE,
+            string abilityNameE = null,
+            Ability soulRingE = null,
+            bool collisionCheckE = false)
+        {
+            if (abilityE == null || !abilityE.IsValid)
+            {
+                return false;
+            }
+
+            if (targetE == null || !targetE.IsValid)
+            {
+                return false;
+            }
+
+            return GetCastSkillShotEnemy(abilityE, targetE, abilityE.Owner.Position, abilityNameE, soulRingE, collisionCheckE);
+        }
+
+        public static bool GetCastSkillShotEnemy(
+            Ability abilityE,
+            Unit targetE,
+            Vector3 sourcePositionE,
+            string abilityNameE = null,
+            Ability soulRingE = null,
+            bool collisionCheckE = false)
+        {
+            if (abilityE == null || !abilityE.IsValid)
+            {
+                return false;
+            }
+
+            if (targetE == null || !targetE.IsValid)
+            {
+                return false;
+            }
+
+            if (!Utils.SleepCheck("PudgePROCastSkillshotEnemy" + abilityE.Handle))
+            {
+                return false;
+            }
+
+            var nameE = abilityNameE ?? abilityE.StoredName();
+            var ownerE = abilityE.Owner as Unit;
+            var positionE = sourcePositionE;
+            var delayE = abilityE.GetHitDelay(targetE, nameE);
+            var dataE = abilityE.CommonProperties();
+
+            // delay += data.AdditionalDelay;
+            if (targetE.IsInvul() && !Utils.ChainStun(targetE, delayE, null, false))
+            {
+                return false;
+            }
+
+            var xyzE = abilityE.GetPrediction(targetE, abilityName: nameE);
+
+            var radiusE = abilityE.GetRadius(nameE);
+            var rangeE = abilityE.TravelDistance();           
+
+            var speedE = abilityE.GetProjectileSpeed(nameE);
+            var distanceXyzE = xyzE.Distance2D(positionE);
+            if (!(distanceXyzE <= rangeE + radiusE + targetE.HullRadius))
+            {
+                return false;
+            }
+
+            if (distanceXyzE > rangeE)
+            {
+                xyzE = xyzE - positionE;
+                xyzE /= xyzE.Length();
+                xyzE *= rangeE;
+                xyzE += positionE;
+            }
+
+            // Console.WriteLine(ability.GetCastRange() + " " + radius);          
+
+
+            if (abilityE.ManaCost > 0 && soulRingE.CanBeCasted())
+            {
+                soulRingE.UseAbility();
+            }
+
+            if (collisionCheckE == false) abilityE.UseAbility(xyzE);
+
+            predictedLocationVec = xyzE;
+
+            return true;
+        }
 
 
         public static bool MeHasMana()
@@ -172,12 +637,28 @@ namespace PudgePRO
                 circle.SetControlPoint(2, me.Position);
                 circle.SetControlPoint(6, new Vector3(1, 0, 0));
                 circle.SetControlPoint(7, target.Position);
+
+                if (hookPredictRad.GetValue<bool>() && predictedLocationVec != null)
+                {
+                    //Game.PrintMessage("Location: " + predictedLocationVec, MessageType.LogMessage);
+                    circle.SetControlPoint(2, me.Position);
+                    circle.SetControlPoint(6, new Vector3(1, 0, 0));
+                    circle.SetControlPoint(7, predictedLocationVec);
+                }
             }
             else
             {
                 circle.SetControlPoint(2, me.Position);
                 circle.SetControlPoint(6, new Vector3(1, 0, 0));
                 circle.SetControlPoint(7, target.Position);
+
+                if (hookPredictRad.GetValue<bool>() && predictedLocationVec != null)
+                {
+                    //Game.PrintMessage("Location: " + predictedLocationVec, MessageType.LogMessage);
+                    circle.SetControlPoint(2, me.Position);
+                    circle.SetControlPoint(6, new Vector3(1, 0, 0));
+                    circle.SetControlPoint(7, predictedLocationVec);
+                }
             }
         }
 
@@ -220,7 +701,8 @@ namespace PudgePRO
                 else
                 {
                     //Game.PrintMessage("Trying to Hook.", MessageType.LogMessage);
-                    ability.CastSkillShot(target, "pudge_meat_hook", soulring);
+                    //ability.CastSkillShot(target, "pudge_meat_hook", soulring);
+                    CastSkillShotEnemy(ability, target, "pudge_meat_hook", soulring, false);
 
                     //if (walkStraight < 500)
                     //{
@@ -289,7 +771,7 @@ namespace PudgePRO
                 || !dagon.CanBeCasted()
                 || target.IsMagicImmune()
                 || !(target.NetworkPosition.Distance2D(me) - target.RingRadius <= dagon.GetCastRange())
-                || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled("item_dagon")
+                || !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled("item_dagon")
                 || !IsFullDebuffed()
                 || !Utils.SleepCheck("PudgePROdagonSleep")) return;
             //|| !Utils.SleepCheck("PudgePROebsleep")) return;
@@ -326,7 +808,9 @@ namespace PudgePRO
         {
             if (item == null || !item.CanBeCasted() || target.IsMagicImmune() || target.MovementSpeed < speed ||
                 target.HasModifier(item.Name) || me.IsChanneling() || !target.IsValidTarget(range, true, me.NetworkPosition) ||
-                me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(item.Name))// || !Utils.SleepCheck("PudgePROitemSleep"))
+                me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name) ||
+                !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name) ||
+                !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name))// || !Utils.SleepCheck("PudgePROitemSleep"))
                 return;
 
             if (item.Name.Contains("veil") && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
@@ -423,11 +907,11 @@ namespace PudgePRO
         {
             if (
                 (veil != null && veil.CanBeCasted() &&
-                 Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(veil.Name) &&
+                 Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(veil.Name) &&
                  !target.HasModifier("modifier_item_veil_of_discord_debuff"))
                 ||
                 (ethereal != null && ethereal.CanBeCasted() &&
-                 Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(ethereal.Name) &&
+                 Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(ethereal.Name) &&
                  !target.HasModifier("modifier_item_ethereal_blade_slow"))
                 )
                 return false;
@@ -440,13 +924,13 @@ namespace PudgePRO
                 (hook.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= hook.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(hook.Name))
                 || (dismember.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= dismember.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dismember.Name))
                 || (dagon.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= dagon.CastRange && Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(dagon.Name))
-                || (sheep.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= sheep.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(sheep.Name))
-                || (bloodthorn.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= bloodthorn.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(bloodthorn.Name))
-                || (orchid.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= orchid.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(orchid.Name))
-                || (veil.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= veil.CastRange && !target.HasModifier("modifier_item_veil_of_discord_debuff") && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(veil.Name))
-                || (ethereal.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= ethereal.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(ethereal.Name))
-                || (shivas.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= shivas.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(shivas.Name))
-                || (glimmer.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= glimmer.CastRange && Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(glimmer.Name))
+                || (sheep.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= sheep.CastRange && Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(sheep.Name))
+                || (bloodthorn.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= bloodthorn.CastRange && Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(bloodthorn.Name))
+                || (orchid.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= orchid.CastRange && Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(orchid.Name))
+                || (veil.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= veil.CastRange && !target.HasModifier("modifier_item_veil_of_discord_debuff") && Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(veil.Name))
+                || (ethereal.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= ethereal.CastRange && Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(ethereal.Name))
+                || (shivas.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= shivas.CastRange && Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(shivas.Name))
+                || (glimmer.CanBeCasted() && target.NetworkPosition.Distance2D(me) <= glimmer.CastRange && Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(glimmer.Name))
                 )
                 return false;
             return true;
@@ -481,7 +965,7 @@ namespace PudgePRO
             if (me.Distance2D(targetPosition) > fullBlinkRange)
             {
                 var meTargetAngle = currentPosition.ToVector2().FindAngleBetween(targetPosition.ToVector2(), true);
-
+                
                 fullBlinkRange -= (int)me.HullRadius;
 
                 blinkLocation = new Vector3(
@@ -497,7 +981,7 @@ namespace PudgePRO
 
         public static void UseForceStaff()
         {
-            if (forcestaff == null || !Menu.Item("items").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) ||
+            if (forcestaff == null || !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) ||
                 !forcestaff.CanBeCasted() || me.IsChanneling() || !Utils.SleepCheck("PudgePROforceStaff")) return;
 
             var fullForceRange = forcestaff.GetCastRange();
@@ -536,7 +1020,7 @@ namespace PudgePRO
             else return;
 
             Utils.Sleep(100, "PudgePROforceStaff");
-        }       
+        }        
 
         public static float GetDistance2D(Vector3 p1, Vector3 p2)
         {

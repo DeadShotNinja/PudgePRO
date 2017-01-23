@@ -29,26 +29,36 @@ namespace PudgePRO
             {"pudge_meat_hook", true}
         };
 
-        public static Dictionary<string, bool> itemsDictionary = new Dictionary<string, bool>
+        public static Dictionary<string, bool> itemsDictionaryDamage = new Dictionary<string, bool>
         {
-                {"item_crimson_guard", true},
-                {"item_hood_of_defiance", true},
-                {"item_pipe", true},
-                {"item_sheepstick", true},
                 {"item_bloodthorn", true},
                 {"item_orchid", true},
                 {"item_shivas_guard", true},
                 {"item_dagon", true},
                 {"item_ethereal_blade", true},
-                {"item_ghost", true},
-                {"item_force_staff", true},
-                {"item_veil_of_discord", true},
-                {"item_glimmer_cape", true},
-            //    {"item_bottle", true},
                 {"item_urn_of_shadows", true}
         };
 
+        public static Dictionary<string, bool> itemsDictionaryControl = new Dictionary<string, bool>
+        {
+                {"item_sheepstick", true},
+                {"item_force_staff", true},
+                {"item_veil_of_discord", true},
+        };
+
+        public static Dictionary<string, bool> itemsDictionaryHealingDef = new Dictionary<string, bool>
+        {
+                {"item_crimson_guard", true},
+                {"item_hood_of_defiance", true},
+                {"item_pipe", true},
+                {"item_ghost", true},
+                {"item_glimmer_cape", true}
+                //{"item_bottle", true}
+        };
+
         //public static Dictionary<float, double> RotSpeedDictionary = new Dictionary<float, double>();
+
+        //public static List<Hero> playerList = new List<Hero>();
 
         public static Menu Menu;
 
@@ -62,7 +72,7 @@ namespace PudgePRO
 
         public static MenuItem comboKey;
 
-        //public static MenuItem allyHookKey;
+        public static MenuItem allyHookKey;
 
         public static MenuItem drawTarget;
 
@@ -77,6 +87,8 @@ namespace PudgePRO
         public static MenuItem safeForce;
 
         public static MenuItem hookPredict;
+
+        public static MenuItem hookPredictRad;
 
         public static MenuItem badHook;
 
@@ -98,7 +110,7 @@ namespace PudgePRO
 
         public static MenuItem useBlink;
 
-        public static bool loaded, rotOn, isInRange, targetRotate = false, targetStop = false;
+        public static bool loaded, rotOn, isInRange, targetRotate = false, targetStop = false, allyRotate = false, allyStop = false;
 
         //public static float minDistHook;
 
@@ -106,13 +118,15 @@ namespace PudgePRO
 
         public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe; // bottle
 
-        public static Hero me, target;//, ally;
+        public static Hero me, target, allyTarget;
 
         public static uint aetherRange, comboSleepGet, stopWaitGet, rotationToleranceGet, itemUseRange;
 
         public static Vector2 iconSize, screenPosition;
 
-        public static float targetFacing, targetFacingNew, walkStraight, sleepTimer, straightTimer, rotTolerance;
+        public static Vector3 predictedLocationVec;
+
+        public static float targetFacing, allyFacing, targetFacingNew, walkStraight, sleepTimer, straightTimer, rotTolerance;
 
         public static double rotationSpeed;
 
