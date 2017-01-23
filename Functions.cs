@@ -808,10 +808,13 @@ namespace PudgePRO
         {
             if (item == null || !item.CanBeCasted() || target.IsMagicImmune() || target.MovementSpeed < speed ||
                 target.HasModifier(item.Name) || me.IsChanneling() || !target.IsValidTarget(range, true, me.NetworkPosition) ||
-                me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name) ||
-                !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name) ||
-                !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name))// || !Utils.SleepCheck("PudgePROitemSleep"))
+                me.Spellbook.Spells.Any(x => x.IsInAbilityPhase))// || !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                //!Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name) ||
+                //!Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name))// || !Utils.SleepCheck("PudgePROitemSleep"))
+            {
+                //Game.PrintMessage("ITEMS RETURNED.", MessageType.LogMessage);
                 return;
+            }
 
             if (item.Name.Contains("veil") && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
             {
@@ -820,7 +823,7 @@ namespace PudgePRO
                     if (dismember != null && (me.IsChanneling() || dismember.IsInAbilityPhase)) return;
 
                     //Game.PrintMessage("Using veil.", MessageType.LogMessage);
-                    item.UseAbility(target.NetworkPosition);
+                    if (Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(target.NetworkPosition);
                     Utils.Sleep(100, "PudgePROveilSleep");
                 }
                 return;
@@ -833,7 +836,7 @@ namespace PudgePRO
                     if (dismember != null && (me.IsChanneling() || dismember.IsInAbilityPhase)) return;
 
                     //Game.PrintMessage("Using ethereal.", MessageType.LogMessage);
-                    item.UseAbility(target);
+                    if (Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(target);
                     Utils.Sleep(100, "PudgePROetherealSleep");
                     //Utils.Sleep(me.NetworkPosition.Distance2D(target.NetworkPosition) / 1200 * 1000, "PudgePROebsleep");
                 }
@@ -842,7 +845,7 @@ namespace PudgePRO
             if ((item.Name.Contains("urn") && urn.CurrentCharges > 0 && me.Distance2D(target) <= 400))// && Utils.SleepCheck("urn")))
             {
                 //Game.PrintMessage("Using urn.", MessageType.LogMessage);
-                item.UseAbility(target);
+                if (Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(target);
                 //Utils.Sleep(240, "urn");
                 //Utils.Sleep(100, "PudgePROitemSleep");
                 return;
@@ -856,13 +859,13 @@ namespace PudgePRO
                         me.IsChanneling() || me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) || !sheep.CanBeCasted()) return;
 
                     //Game.PrintMessage("Using SheepStick.", MessageType.LogMessage);
-                    item.UseAbility(target);
+                    if (Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(target);
                     return;
                 }
                 if (item.Name.Contains("glimmer"))
                 {
                     //Game.PrintMessage("Using glimmer.", MessageType.LogMessage);
-                    item.UseAbility(me);
+                    if (Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(me);
                     return;
                 }
                 //if (item.Name.Contains("orchid") || item.Name.Contains("bloodthorn"))
