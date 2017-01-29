@@ -15,6 +15,7 @@ namespace PudgePRO
             hookPredict = new MenuItem("hookPredict", "Auto Hook Prediction").SetValue(true).SetTooltip("Will auto predict target location for EZ hooks.");
             hookPredictRad = new MenuItem("hookPredictRad", "Display Prediction Circle").SetValue(false).SetTooltip("Draws a circle showing where you should hook (will not show if hook is blocked/out of range).");
             badHook = new MenuItem("badHook", "Bad Hook Check").SetValue(true).SetTooltip("Will auto cancel a POSSIBLE bad hook. TESTING: Use sliders below to set the timings to your liking.");
+            newHookCheck = new MenuItem("newHookCheck", "Fast Hook Check").SetValue(true).SetTooltip("TESTING NEW CANCEL HOOK METHOD (Should be faster, but sometimes less accurate).");            
             comboSleep = new MenuItem("comboSleep", "Combo Sleep Timer").SetValue(new Slider(100, 0, 1000)).SetTooltip("TESTING: Sleep time before trying another hook. DEFAULT: 100");
             stopWait = new MenuItem("stopWait", "Rotate Chance Timer").SetValue(new Slider(100, 0, 1000)).SetTooltip("TESTING: How long to wait before checking if target rotated (after hook casted). DEFAULT: 100");
             rotationTolerance = new MenuItem("rotationTolerance", "Rotation Tolerancy").SetValue(new Slider(2, 0, 10)).SetTooltip("TESTING: How much can the target rotate before it's a POSSIBLE bad hook. DEFAULT: 2");
@@ -26,6 +27,7 @@ namespace PudgePRO
             //bladeMail = new MenuItem("bladeMail", "Check for BladeMail").SetValue(false).SetTooltip("Will not combo if target used blademail.");
             drawTarget = new MenuItem("drawTarget", "Target indicator").SetValue(true).SetTooltip("Shows red circle around your target.");
             moveMode = new MenuItem("moveMode", "Orbwalk").SetValue(false).SetTooltip("Will orbwalk to mouse while combo key is held down.");
+            blockedHookMove = new MenuItem("blockedHookMove", "Blocked Hook Move").SetValue(true).SetTooltip("Move to mouse position if something is blocking the hook path.");
             ClosestToMouseRange = new MenuItem("ClosestToMouseRange", "Closest to mouse range").SetValue(new Slider(1500, 1, 2000)).SetTooltip("Will look for enemy in selected range around your mouse pointer.");
             //SafeBlinkRange = new MenuItem("SafeBlinkRange", "Safe Blink Range").SetValue(new Slider(400, 0, 1000)).SetTooltip("Will NOT blink closer to enemy than selected range.");
 
@@ -54,12 +56,14 @@ namespace PudgePRO
             //items.AddItem(bladeMail);            
             hookPredictions.AddItem(hookPredict);
             hookPredictions.AddItem(hookPredictRad);
+            hookPredictions.AddItem(newHookCheck);
             hookPredictions.AddItem(badHook);
             hookPredictions.AddItem(comboSleep);
             hookPredictions.AddItem(stopWait);
             hookPredictions.AddItem(rotationTolerance);
             abilities.AddItem(new MenuItem("abilities", "Abilities").SetValue(new AbilityToggler(abilitiesDictionary)));
             targetOptions.AddItem(moveMode);
+            targetOptions.AddItem(blockedHookMove);
             targetOptions.AddItem(ClosestToMouseRange);
             targetOptions.AddItem(drawTarget);
             //targetOptions.AddItem(badHook);

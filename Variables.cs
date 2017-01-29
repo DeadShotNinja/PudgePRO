@@ -78,6 +78,8 @@ namespace PudgePRO
 
         public static MenuItem moveMode;
 
+        public static MenuItem blockedHookMove;
+
         public static MenuItem ClosestToMouseRange;
 
         //public static MenuItem SafeBlinkRange;
@@ -91,6 +93,8 @@ namespace PudgePRO
         public static MenuItem hookPredictRad;
 
         public static MenuItem badHook;
+
+        public static MenuItem newHookCheck;
 
         public static MenuItem comboSleep;
 
@@ -110,7 +114,9 @@ namespace PudgePRO
 
         public static MenuItem useBlink;
 
-        public static bool loaded, rotOn, isInRange, targetRotate = false, targetStop = false, allyRotate = false, allyStop = false;
+        public static bool loaded, rotOn, isInRange, blockedHook = false, targetRotate = false, 
+            targetRotateOld = false, targetStop = false, allyRotate = false, allyStop = false, 
+            initSleep = false, tStillIdling = false;
 
         //public static float minDistHook;
 
@@ -126,7 +132,7 @@ namespace PudgePRO
 
         public static Vector3 predictedLocationVec;
 
-        public static float targetFacing, allyFacing, targetFacingNew, walkStraight, sleepTimer, straightTimer, rotTolerance;
+        public static float targetFacing, targetFacingOld, targetFacingA, targetFacingB, allyFacing, targetFacingNew, walkStraight, sleepTimer, straightTimer, rotTolerance;
 
         public static double rotationSpeed;
 

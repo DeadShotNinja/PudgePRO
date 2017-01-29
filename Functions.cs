@@ -99,6 +99,55 @@ namespace PudgePRO
             Utils.Sleep(1000, "PudgePROGetPredictionValues");
         }
 
+        public static bool TargetRotated()
+        {
+                if (hook != null && !hook.IsInAbilityPhase && !initSleep)
+                {
+                    var targetFacingLocationA = target.InFront(100);
+                    var targetFacingAngleA = target.Position.ToVector2().FindAngleBetween(targetFacingLocationA.ToVector2(), true);
+                    targetFacingA = targetFacingAngleA;                
+
+                    Utils.Sleep(stopWaitGet, "PudgePROrotatedSleep");
+                    initSleep = true;
+                    return false;
+                }
+
+                if (Utils.SleepCheck("PudgePROrotatedSleep"))
+                {
+                    var targetFacingLocationB = target.InFront(100);
+                    var targetFacingAngleB = target.Position.ToVector2().FindAngleBetween(targetFacingLocationB.ToVector2(), true);
+
+                    targetFacingB = targetFacingAngleB;
+                    initSleep = false;
+                }
+                else if (!Utils.SleepCheck("PudgePROrotatedSleep")) return false;
+
+                //Game.PrintMessage(" targetFacing: " + targetFacing + " targetFacingAngleA: " + targetFacingAngleA, MessageType.LogMessage);
+
+
+                return (targetFacingA + rotTolerance < targetFacingB || targetFacingA - rotTolerance > targetFacingB);
+        }
+
+        public static bool TargetStillIdle()
+        {
+            bool stillIdle = Prediction.IsIdle(target);
+
+            if (Utils.SleepCheck("PudgePROstillIdleSleep") && tStillIdling)
+            {
+                stillIdle = Prediction.IsIdle(target);
+                tStillIdling = false;
+                return stillIdle;
+            }
+
+            if (stillIdle && Utils.SleepCheck("PudgePROstillIdleSleep"))
+            {
+                Utils.Sleep(100, "PudgePROstillIdleSleep");
+                tStillIdling = true;
+            }
+
+            return stillIdle;
+        }
+
         //public static bool HasModifiers()
         //{
         //    if (target.HasModifiers(modifiersNames, false) ||
@@ -403,6 +452,7 @@ namespace PudgePRO
                             <= radiusE + x.HullRadius))
                 {
                     //Game.PrintMessage("AllyBlock", MessageType.LogMessage);
+                    blockedHook = true;
                     return false;
                 }
 
@@ -417,6 +467,7 @@ namespace PudgePRO
                                   <= radiusE + hero.HullRadius))
                 {
                     //Game.PrintMessage("AllyBlock", MessageType.LogMessage);
+                    blockedHook = true;
                     return false;
                 }
             }
@@ -435,6 +486,7 @@ namespace PudgePRO
                             <= radiusE + x.HullRadius))
                 {
                     //Game.PrintMessage("EnemyBlock", MessageType.LogMessage);
+                    blockedHook = true;
                     return false;
                 }
 
@@ -449,9 +501,12 @@ namespace PudgePRO
                                   <= radiusE + hero.HullRadius))
                 {
                     //Game.PrintMessage("EnemyBlock", MessageType.LogMessage);
+                    blockedHook = true;
                     return false;
                 }
             }
+
+            blockedHook = false;
 
             var speedE = abilityE.GetProjectileSpeed(nameE);
             var distanceXyzE = xyzE.Distance2D(positionE);
@@ -950,6 +1005,14 @@ namespace PudgePRO
                     me.Attack(target);
                     break;
             }
+        }
+
+        public static void MoveToMousePos()
+        {
+            if (blockedHook == false || !blockedHookMove.GetValue<bool>()) return;
+
+            //Game.PrintMessage("Moving to MOuse Pos.", MessageType.LogMessage);
+            me.Move(Game.MousePosition, false);
         }
 
         public static void UseBlink()

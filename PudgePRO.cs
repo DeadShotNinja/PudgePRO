@@ -69,6 +69,20 @@ namespace PudgePRO
             target = me.ClosestToMouseTarget(ClosestToMouseRange.GetValue<Slider>().Value);
             allyTarget = ClosestToMouseAlly(me);
 
+            if (Utils.SleepCheck("PudgePROrotatedCheckSleep"))
+            {
+                //Game.PrintMessage("Target Rotated: " + TargetRotated(), MessageType.LogMessage);
+                targetRotate = TargetRotated();
+
+                Utils.Sleep(comboSleepGet, "PudgePROrotatedCheckSleep");
+            }
+
+            //if (hook != null && hook.IsInAbilityPhase && targetRotate)
+            //{
+            //    Game.PrintMessage("I WORK NOW", MessageType.LogMessage);
+            //    me.Stop();
+            //}
+
             if (hook != null && target != null && hookPredictRad.GetValue<bool>()) GetCastSkillShotEnemy(hook, target, "pudge_meat_hook", soulring, true);
 
             //foreach (var unit in playerList)
@@ -234,13 +248,15 @@ namespace PudgePRO
                 
                 if (target == null || !target.IsValid || target.IsIllusion || !target.IsAlive || target.IsInvul()) return;
 
-                if (!targetRotate)
+                if (!targetRotateOld && !newHookCheck.GetValue<bool>())
                 {
                     var targetFacingLocationB = target.InFront(100);
                     var targetFacingAngleB = target.Position.ToVector2().FindAngleBetween(targetFacingLocationB.ToVector2(), true);
                     targetFacing = targetFacingAngleB;
-                    targetRotate = true;
+                    targetRotateOld = true;
                 }
+
+
 
                 if (soulring != null && !soulRing.GetValue<bool>())
                     soulring = null;
@@ -299,31 +315,44 @@ namespace PudgePRO
                     !me.IsChanneling() && Utils.SleepCheck("PudgePROcomboSleep"))
                 {
 
-                    Utils.Sleep(comboSleepGet, "PudgePROcomboSleep");
+                    Utils.Sleep(100, "PudgePROcomboSleep");
 
                     //Game.PrintMessage("COMBO WORKING", MessageType.LogMessage);
                     CastAbility(hook, hook.GetCastRange());
 
-                    if (!Utils.SleepCheck("PudgePRObadHookSleep")) return;
+                    //if (targetFacing == targetFacingOld) targetRotate = false;
+
+                    if (!Utils.SleepCheck("PudgePRObadHookSleep") && !newHookCheck.GetValue<bool>()) return;
                     //if (walkStraight < 500 && walkStraight != 0) return;
 
+                    
                     var targetFacingLocationA = target.InFront(100);
                     var targetFacingAngleA = target.Position.ToVector2().FindAngleBetween(targetFacingLocationA.ToVector2(), true);
 
-                    //Game.PrintMessage("targetFacing: " + targetFacing + "targetFacingAngleA: " + targetFacingAngleA, MessageType.LogMessage);
+                        //Game.PrintMessage(" targetFacing: " + targetFacing + " targetFacingAngleA: " + targetFacingAngleA, MessageType.LogMessage);
+                    
+
+                    //if (targetFacing == targetFacingOld) targetFacing = targetFacingAngleA;
+
+                    //Game.PrintMessage("NEED TO STOP HOOK " + targetRotate, MessageType.LogMessage);
 
                     if (badHook.GetValue<bool>() && hook != null && hook.IsInAbilityPhase && 
-                        ((targetFacing + rotTolerance < targetFacingAngleA || targetFacing - rotTolerance > targetFacingAngleA) || (Prediction.IsIdle(target) && !targetStop) ||
+                        (((targetRotate && newHookCheck.GetValue<bool>()) || ((targetFacing + rotTolerance < targetFacingAngleA || targetFacing - rotTolerance > targetFacingAngleA) && !newHookCheck.GetValue<bool>()))
+                        || (Prediction.IsIdle(target) && ((!TargetStillIdle() && newHookCheck.GetValue<bool>()) || !targetStop && !newHookCheck.GetValue<bool>())) ||
                         !CastSkillShotEnemy(hook, target, "pudge_meat_hook", soulring, true)))
                     {
-                        //Game.PrintMessage("BAD HOOK", MessageType.LogMessage);
-                        me.Stop();
-                        targetRotate = false;
+                        //Game.PrintMessage("BAD HOOK " + hook.IsInAbilityPhase + " " + (targetFacing + rotTolerance < targetFacingAngleA) + " " + 
+                        //    (targetFacing - rotTolerance > targetFacingAngleA) + " " + Prediction.IsIdle(target) + " " + targetStop + " " +
+                        //    CastSkillShotEnemy(hook, target, "pudge_meat_hook", soulring, true), MessageType.LogMessage);
+                        me.Stop();                        
+                        targetRotateOld = false;
+                        //targetFacing = targetFacingAngleA;
                         if (Prediction.IsIdle(target)) targetStop = true;
                         return;
                     }
-                    targetRotate = false;
-                    
+                    targetRotateOld = false;
+
+                    MoveToMousePos();
 
                     //if (0.1 + 0.1f < 0.5 || 0.1 - 0.1f > 0.5)
 
@@ -354,11 +383,11 @@ namespace PudgePRO
                     Utils.Sleep(100, "PudgePROidleSleep");
                 }
 
-                if (Utils.SleepCheck("PudgePRObadHookSleep") && targetRotate && Utils.SleepCheck("PudgePROrotateSleep"))
+                if (Utils.SleepCheck("PudgePRObadHookSleep") && targetRotate && Utils.SleepCheck("PudgePROrotateSleep") && !newHookCheck.GetValue<bool>())
                 {
                     //Game.PrintMessage("resetting rotate", MessageType.LogMessage);
-                    
-                    targetRotate = false;
+
+                    targetRotateOld = false;
                     Utils.Sleep(100, "PudgePROrotateSleep");
                 }
 
