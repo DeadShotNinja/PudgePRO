@@ -72,6 +72,8 @@ namespace PudgePRO
 
         public static MenuItem comboKey;
 
+        public static MenuItem comboToggleKey;
+
         public static MenuItem allyHookKey;
 
         public static MenuItem drawTarget;

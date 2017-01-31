@@ -9,6 +9,7 @@ namespace PudgePRO
             heroName = "npc_dota_hero_pudge";
             Menu = new Menu(AssemblyName, AssemblyName, true, heroName, true);
             comboKey = new MenuItem("comboKey", "Combo Key").SetValue(new KeyBind(70, KeyBindType.Press)).SetTooltip("Full combo in logical order.");
+            comboToggleKey = new MenuItem("comboToggleKey", "Combo Toggle Key").SetValue(new KeyBind(72, KeyBindType.Toggle)).SetTooltip("Full combo in logical order. (Always combo while key toggled on.)");
             allyHookKey = new MenuItem("allyHookKey", "Ally Hook Key").SetValue(new KeyBind(75, KeyBindType.Press)).SetTooltip("Save closest to mouse ally with hook (no targeting particles dislplayed).");
             useBlink = new MenuItem("useBlink", "Use Blink Dagger").SetValue(true).SetTooltip("Will auto blink (with logic) while combo key is held down.");
             soulRing = new MenuItem("soulRing", "Soulring").SetValue(true).SetTooltip("Will use soul ring before combo.");
@@ -37,6 +38,7 @@ namespace PudgePRO
             hookPredictions = new Menu("Hook Predictions", "Hook Predictions");
 
             Menu.AddItem(comboKey);
+            Menu.AddItem(comboToggleKey);
             Menu.AddItem(allyHookKey);
 
             Menu.AddSubMenu(items);

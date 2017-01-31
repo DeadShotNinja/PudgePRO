@@ -1048,7 +1048,8 @@ namespace PudgePRO
         public static void UseForceStaff()
         {
             if (forcestaff == null || !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) ||
-                !forcestaff.CanBeCasted() || me.IsChanneling() || !Utils.SleepCheck("PudgePROforceStaff")) return;
+                !forcestaff.CanBeCasted() || me.IsChanneling() || target.Distance2D(me.Position) > 250 || 
+                target.HasModifier("modifier_pudge_meat_hook") || !Utils.SleepCheck("PudgePROforceStaff")) return;
 
             var fullForceRange = forcestaff.GetCastRange();
             var tToMeDist = target.NetworkPosition.Distance2D(me);
@@ -1071,7 +1072,8 @@ namespace PudgePRO
 
             //Game.PrintMessage("Angles: " + meForceAngle + " and " + meTargetAngle, MessageType.LogMessage);
 
-            if (safeForce.GetValue<bool>() && (meForceAngle + 0.1f >= meTargetAngle && meForceAngle - 0.1f <= meTargetAngle) && !me.IsChanneling())
+            if (safeForce.GetValue<bool>() && (meForceAngle + 0.1f >= meTargetAngle && meForceAngle - 0.1f <= meTargetAngle) && 
+                !me.IsChanneling() && targetPosition.Distance2D(newPosition) < tToMeDist && !me.IsChanneling())
             {
                 //Game.PrintMessage("Safe Force", MessageType.LogMessage);
                 forcestaff.UseAbility(me);

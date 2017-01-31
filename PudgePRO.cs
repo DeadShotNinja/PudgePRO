@@ -151,6 +151,7 @@ namespace PudgePRO
                 //    allyRotate = true;
                 //}
 
+                
                 if (soulring != null && !soulRing.GetValue<bool>())
                     soulring = null;
 
@@ -231,7 +232,7 @@ namespace PudgePRO
 
             // Full combo
             // Check if Combo key is being held down.
-            if (Game.IsKeyDown(comboKey.GetValue<KeyBind>().Key))
+            if (Game.IsKeyDown(comboKey.GetValue<KeyBind>().Key) || Menu.Item("comboToggleKey").IsActive())//GetValue<KeyBind>().Key)
             {
                 // Retrieves values for ability and item variables.
                 GetAbilities();
@@ -256,6 +257,12 @@ namespace PudgePRO
                     targetRotateOld = true;
                 }
 
+
+                if (target.HasModifier("modifier_pudge_meat_hook") && target.Distance2D(me.Position) > 1000 && Utils.SleepCheck("PudgePROblink"))
+                {
+                    me.Stop();
+                    Utils.Sleep(100, "PudgePROblink");
+                }
 
 
                 if (soulring != null && !soulRing.GetValue<bool>())
