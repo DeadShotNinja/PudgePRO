@@ -44,6 +44,7 @@ namespace PudgePRO
                 {"item_sheepstick", true},
                 {"item_force_staff", true},
                 {"item_veil_of_discord", true},
+                {"item_dust", true}
         };
 
         public static Dictionary<string, bool> itemsDictionaryHealingDef = new Dictionary<string, bool>
@@ -70,11 +71,15 @@ namespace PudgePRO
 
         public static Menu hookPredictions;
 
+        public static MenuItem comboType;
+
         public static MenuItem comboKey;
 
         public static MenuItem comboToggleKey;
 
         public static MenuItem allyHookKey;
+
+        public static MenuItem killSteal;
 
         public static MenuItem drawTarget;
 
@@ -118,13 +123,13 @@ namespace PudgePRO
 
         public static bool loaded, rotOn, isInRange, blockedHook = false, targetRotate = false, 
             targetRotateOld = false, targetStop = false, allyRotate = false, allyStop = false, 
-            initSleep = false, tStillIdling = false;
+            initSleep = false, tStillIdling = false, rotToggled = false;
 
         //public static float minDistHook;
 
         public static Ability hook, rot, dismember;
 
-        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe; // bottle
+        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe, dust; // bottle
 
         public static Hero me, target, allyTarget;
 

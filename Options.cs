@@ -8,10 +8,12 @@ namespace PudgePRO
         {
             heroName = "npc_dota_hero_pudge";
             Menu = new Menu(AssemblyName, AssemblyName, true, heroName, true);
+            comboType = new MenuItem("comboType", "Combo Type").SetValue(new StringList(new[] { "Aggr", "Deff", "Norm" }, 0)).SetTooltip("Aggr: Initiate with Blink/Dismember/etc. Deff: Hook first from a distance (no blink). Norm: Original.");
             comboKey = new MenuItem("comboKey", "Combo Key").SetValue(new KeyBind(70, KeyBindType.Press)).SetTooltip("Full combo in logical order.");
             comboToggleKey = new MenuItem("comboToggleKey", "Combo Toggle Key").SetValue(new KeyBind(72, KeyBindType.Toggle)).SetTooltip("Full combo in logical order. (Always combo while key toggled on.)");
             allyHookKey = new MenuItem("allyHookKey", "Ally Hook Key").SetValue(new KeyBind(75, KeyBindType.Press)).SetTooltip("Save closest to mouse ally with hook (no targeting particles dislplayed).");
             useBlink = new MenuItem("useBlink", "Use Blink Dagger").SetValue(true).SetTooltip("Will auto blink (with logic) while combo key is held down.");
+            killSteal = new MenuItem("killSteal", "Kill Steal").SetValue(false).SetTooltip("Will kill steal with 'nuke' abilities. (Only hook currently supported)");
             soulRing = new MenuItem("soulRing", "Soulring").SetValue(true).SetTooltip("Will use soul ring before combo.");
             hookPredict = new MenuItem("hookPredict", "Auto Hook Prediction").SetValue(true).SetTooltip("Will auto predict target location for EZ hooks.");
             hookPredictRad = new MenuItem("hookPredictRad", "Display Prediction Circle").SetValue(false).SetTooltip("Draws a circle showing where you should hook (will not show if hook is blocked/out of range).");
@@ -32,11 +34,14 @@ namespace PudgePRO
             ClosestToMouseRange = new MenuItem("ClosestToMouseRange", "Closest to mouse range").SetValue(new Slider(1500, 1, 2000)).SetTooltip("Will look for enemy in selected range around your mouse pointer.");
             //SafeBlinkRange = new MenuItem("SafeBlinkRange", "Safe Blink Range").SetValue(new Slider(400, 0, 1000)).SetTooltip("Will NOT blink closer to enemy than selected range.");
 
+
+
             items = new Menu("Items", "Items");
             abilities = new Menu("Abilities", "Abilities");
             targetOptions = new Menu("Target Options", "Target Options");
             hookPredictions = new Menu("Hook Predictions", "Hook Predictions");
 
+            Menu.AddItem(comboType);
             Menu.AddItem(comboKey);
             Menu.AddItem(comboToggleKey);
             Menu.AddItem(allyHookKey);
@@ -64,6 +69,7 @@ namespace PudgePRO
             hookPredictions.AddItem(stopWait);
             hookPredictions.AddItem(rotationTolerance);
             abilities.AddItem(new MenuItem("abilities", "Abilities").SetValue(new AbilityToggler(abilitiesDictionary)));
+            abilities.AddItem(killSteal);
             targetOptions.AddItem(moveMode);
             targetOptions.AddItem(blockedHookMove);
             targetOptions.AddItem(ClosestToMouseRange);

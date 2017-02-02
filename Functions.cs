@@ -42,6 +42,7 @@ namespace PudgePRO
             crimson = me.FindItem("item_crimson_guard");
             hood = me.FindItem("item_hood_of_defiance");
             pipe = me.FindItem("item_pipe");
+            dust = me.FindItem("item_dust");
             hook = me.FindSpell("pudge_meat_hook");
             rot = me.FindSpell("pudge_rot");
             dismember = me.FindSpell("pudge_dismember");
@@ -759,6 +760,8 @@ namespace PudgePRO
                     //ability.CastSkillShot(target, "pudge_meat_hook", soulring);
                     CastSkillShotEnemy(ability, target, "pudge_meat_hook", soulring, false);
 
+                    Utils.Sleep(750, "PudgePROhookCastedSleep");
+
                     //if (walkStraight < 500)
                     //{
                     //    Game.PrintMessage("NOT ENOUGH TIME TO HOOK." + walkStraight, MessageType.LogMessage);
@@ -841,20 +844,24 @@ namespace PudgePRO
         public static void UseRot()
         {
             if (rot == null || !rot.CanBeCasted() || rot.IsInAbilityPhase || !Utils.SleepCheck("PudgePROrotCheck") ||
-                !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(rot.Name)) return;
+            !Menu.Item("abilities").GetValue<AbilityToggler>().IsEnabled(rot.Name)) return;            
 
-            rotOn = me.HasModifier("modifier_pudge_rot") == true ? true : false;
-            isInRange = (target.NetworkPosition.Distance2D(me) <= rot.GetRadius() + me.HullRadius == true) ? true : false;
+            //rotOn = me.HasModifier("modifier_pudge_rot") == true ? true : false;
+            isInRange = (target.Position.Distance2D(me.Position) <= rot.GetCastRange() + me.HullRadius) ? true : false;
 
-            if (!rotOn && isInRange)
+            //Game.PrintMessage("rotOn: " + rot.IsToggled + " isInRange: " + isInRange, MessageType.LogMessage);
+
+            if ((!rot.IsToggled && isInRange) || (!rot.IsToggled && target.HasModifier("modifier_pudge_meat_hook")))
             {
                 //Game.PrintMessage("Turning rot ON.", MessageType.LogMessage);
                 rot.ToggleAbility();
+                //rotToggled = true;
             }
-            else if (rotOn && !isInRange)
+            else if (rot.IsToggled && !isInRange && !target.HasModifier("modifier_pudge_meat_hook"))
             {
                 //Game.PrintMessage("Turning rot OFF.", MessageType.LogMessage);
                 rot.ToggleAbility();
+                //rotToggled = false;
             }
             Utils.Sleep(200, "PudgePROrotCheck");
         }
@@ -903,6 +910,12 @@ namespace PudgePRO
                 if (Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility(target);
                 //Utils.Sleep(240, "urn");
                 //Utils.Sleep(100, "PudgePROitemSleep");
+                return;
+            }
+            if (item.Name.Contains("dust"))
+            {
+                //Game.PrintMessage("Using dust.", MessageType.LogMessage);
+                if ((target.CanGoInvis() || target.IsInvisible()) && Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) item.UseAbility();
                 return;
             }
 
@@ -1002,14 +1015,15 @@ namespace PudgePRO
                     Orbwalking.Orbwalk(target);
                     break;
                 case false:
-                    me.Attack(target);
+                    if (!me.IsAttacking()) me.Attack(target, true);
+                    //if (!me.IsAttacking()) me.Attack(target);
                     break;
             }
         }
 
         public static void MoveToMousePos()
         {
-            if (blockedHook == false || !blockedHookMove.GetValue<bool>()) return;
+            if (blockedHook == false || !blockedHookMove.GetValue<bool>() || me.IsChanneling()) return;
 
             //Game.PrintMessage("Moving to MOuse Pos.", MessageType.LogMessage);
             me.Move(Game.MousePosition, false);
@@ -1018,8 +1032,9 @@ namespace PudgePRO
         public static void UseBlink()
         {
 
-            if (!useBlink.GetValue<bool>() || blink == null || !blink.CanBeCasted() || !Utils.SleepCheck("PudgePROblink") ||
-                (dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me))) return;
+            if (!useBlink.GetValue<bool>() || blink == null || !blink.CanBeCasted() || !Utils.SleepCheck("PudgePROblink") || me.IsChanneling() ||
+                (dismember.GetCastRange() + me.HullRadius >= target.NetworkPosition.Distance2D(me)) || target.HasModifier("modifier_pudge_meat_hook") ||
+                (hook != null && hook.IsInAbilityPhase) && !Utils.SleepCheck("PudgePROhookCastedSleep")) return;
 
             var fullBlinkRange = aetherLens == null ? 1200 : 1420;
             var currentPosition = me.Position;
@@ -1048,8 +1063,10 @@ namespace PudgePRO
         public static void UseForceStaff()
         {
             if (forcestaff == null || !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(forcestaff.Name) ||
-                !forcestaff.CanBeCasted() || me.IsChanneling() || target.Distance2D(me.Position) > 250 || 
-                target.HasModifier("modifier_pudge_meat_hook") || !Utils.SleepCheck("PudgePROforceStaff")) return;
+                !forcestaff.CanBeCasted() || me.IsChanneling() || target.Distance2D(me.Position) < 400 || 
+                target.HasModifier("modifier_pudge_meat_hook") || (hook != null && hook.IsInAbilityPhase) ||
+                (hook != null && CastSkillShotEnemy(hook, target, "pudge_meat_hook", collisionCheckE: true)) ||
+                !Utils.SleepCheck("PudgePROforceStaff")) return;
 
             var fullForceRange = forcestaff.GetCastRange();
             var tToMeDist = target.NetworkPosition.Distance2D(me);
@@ -1064,6 +1081,8 @@ namespace PudgePRO
                     currentPosition.X + fullForceRange * (float)Math.Cos(meTargetAngle),
                     currentPosition.Y + fullForceRange * (float)Math.Sin(meTargetAngle),
                     100);
+
+            //Game.PrintMessage("FAIL", MessageType.LogMessage);
 
             if (dismember != null && dismember.CanBeCasted() && tToMeDist < dismember.GetCastRange() + me.HullRadius) return;
             //me.Move(newPosition);
