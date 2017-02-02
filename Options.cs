@@ -8,7 +8,7 @@ namespace PudgePRO
         {
             heroName = "npc_dota_hero_pudge";
             Menu = new Menu(AssemblyName, AssemblyName, true, heroName, true);
-            comboType = new MenuItem("comboType", "Combo Type").SetValue(new StringList(new[] { "Aggr", "Deff", "Norm" }, 0)).SetTooltip("Aggr: Initiate with Blink/Dismember/etc. Deff: Hook first from a distance (no blink). Norm: Original.");
+            comboType = new MenuItem("comboType", "Combo Type").SetValue(new StringList(new[] { "Aggr", "Deff", "Norm" }, 2)).SetTooltip("Aggr: Initiate with Blink/Dismember/etc. Deff: Hook first from a distance (no blink). Norm: Original.");
             comboKey = new MenuItem("comboKey", "Combo Key").SetValue(new KeyBind(70, KeyBindType.Press)).SetTooltip("Full combo in logical order.");
             comboToggleKey = new MenuItem("comboToggleKey", "Combo Toggle Key").SetValue(new KeyBind(72, KeyBindType.Toggle)).SetTooltip("Full combo in logical order. (Always combo while key toggled on.)");
             allyHookKey = new MenuItem("allyHookKey", "Ally Hook Key").SetValue(new KeyBind(75, KeyBindType.Press)).SetTooltip("Save closest to mouse ally with hook (no targeting particles dislplayed).");
