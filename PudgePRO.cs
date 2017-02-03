@@ -171,26 +171,30 @@ namespace PudgePRO
             {
                 GetAbilities();
 
-                if (hook == null || !hook.CanBeCasted() || hook.IsInAbilityPhase || me.IsChanneling() || !Utils.SleepCheck("PudgePROkillStealSleep")) return;
-
-                var targets = ObjectManager.GetEntities<Hero>().Where(hero => hero.IsAlive && !hero.IsIllusion && hero.IsVisible && hero.Team == me.GetEnemyTeam()).ToList();
-
-                if (targets == null || !targets.Any()) return;
-
-                foreach (var enemy in targets)
+                if (hook != null && hook.CanBeCasted() && !hook.IsInAbilityPhase && !me.IsChanneling() && Utils.SleepCheck("PudgePROkillStealSleep"))
                 {
-                    var hookFullDamage = AbilityDamage.CalculateDamage(hook, me, enemy);
 
-                    //Game.PrintMessage("Hook Damage: " + hookFullDamage, MessageType.LogMessage);
+                    var targets = ObjectManager.GetEntities<Hero>().Where(hero => hero.IsAlive && !hero.IsIllusion && hero.IsVisible && hero.Team == me.GetEnemyTeam()).ToList();
 
-                    if (enemy.Health < hookFullDamage && hook.GetCastRange() >= enemy.NetworkPosition.Distance2D(me.NetworkPosition))
+                    if (targets != null && targets.Any())
                     {
-                        //Game.PrintMessage("Trying to hook " + enemy, MessageType.LogMessage);
-                        CastSkillShotEnemy(hook, target, "pudge_meat_hook", soulring, false);
-                    }
-                }
 
-                Utils.Sleep(100, "PudgePROkillStealSleep");
+                        foreach (var enemy in targets)
+                        {
+                            var hookFullDamage = AbilityDamage.CalculateDamage(hook, me, enemy);
+
+                            //Game.PrintMessage("Hook Damage: " + hookFullDamage, MessageType.LogMessage);
+
+                            if (enemy.Health < hookFullDamage && hook.GetCastRange() >= enemy.NetworkPosition.Distance2D(me.NetworkPosition))
+                            {
+                                //Game.PrintMessage("Trying to hook " + enemy, MessageType.LogMessage);
+                                CastSkillShotEnemy(hook, target, "pudge_meat_hook", soulring, false);
+                            }
+                        }
+                    }
+
+                    Utils.Sleep(100, "PudgePROkillStealSleep");
+                }
             }
 
 
