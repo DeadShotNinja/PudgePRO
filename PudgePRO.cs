@@ -329,6 +329,7 @@ namespace PudgePRO
                     Utils.Sleep(100, "PudgePROblink");
                 }
 
+                CheckLinkensProt();
 
                 if (soulring != null && !soulRing.GetValue<bool>())
                     soulring = null;
@@ -368,7 +369,7 @@ namespace PudgePRO
                 UseItem(hood, itemUseRange);
                 UseItem(crimson, itemUseRange);
 
-                if ((hookRange < target.NetworkPosition.Distance2D(me) || !MeHasMana()) && !me.IsChanneling() &&
+                if ((hookRange < target.NetworkPosition.Distance2D(me) || !MeHasMana() || AllOnCooldown()) && !me.IsChanneling() &&
                     !me.Spellbook.Spells.Any(x => x.IsInAbilityPhase) && Utils.SleepCheck("PudgePROorbwalkSleep"))
                 {
                     //Game.PrintMessage("ORBWALKING.", MessageType.LogMessage);
@@ -469,5 +470,6 @@ namespace PudgePRO
         }
     }
 }
+
 
 

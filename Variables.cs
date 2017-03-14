@@ -129,7 +129,7 @@ namespace PudgePRO
 
         public static Ability hook, rot, dismember;
 
-        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe, dust; // bottle
+        public static Item soulring, shivas, blink, ghost, aetherLens, urn, forcestaff, sheep, orchid, bloodthorn, veil, ethereal, dagon, glimmer, crimson, hood, pipe, dust, cyclone; // bottle
 
         public static Hero me, target, allyTarget;
 
@@ -152,3 +152,8 @@ namespace PudgePRO
         //public static readonly uint[] DagonDamage = { 0, 400, 500, 600, 700, 800 };
     }
 }
+
+
+
+
+

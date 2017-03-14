@@ -36,6 +36,7 @@ namespace PudgePRO
             //bottle = me.FindItem("item_bottle");
             urn = me.FindItem("item_urn_of_shadows");
             forcestaff = me.FindItem("item_force_staff");
+            cyclone = me.FindItem("item_cyclone");
             orchid = me.FindItem("item_orchid");
             bloodthorn = me.FindItem("item_bloodthorn");
             glimmer = me.FindItem("item_glimmer_cape");
@@ -878,6 +879,22 @@ namespace PudgePRO
                 return;
             }
 
+            if ((item.Name.Contains("bloodthorn") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("orchid") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("shivas") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("dagon") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("ethereal") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("urn") && !Menu.Item("itemsDmg").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("sheep") && !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("force") && !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("veil") && !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("dust") && !Menu.Item("itemsCon").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("crimson") && !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("defiance") && !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("pipe") && !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("ghost") && !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name)) ||
+                (item.Name.Contains("glimmer") && !Menu.Item("itemsHD").GetValue<AbilityToggler>().IsEnabled(item.Name))) return;
+
             if (item.Name.Contains("veil") && !target.HasModifier("modifier_item_veil_of_discord_debuff"))
             {
                 if (Utils.SleepCheck("PudgePROveilSleep"))
@@ -987,6 +1004,22 @@ namespace PudgePRO
                 )
                 return false;
             return true;
+        }
+
+        public static bool CheckLinkensProt()
+        {
+            if (target.IsLinkensProtected() && Utils.SleepCheck("PudgePROlinkProtCheck"))
+            {
+                Game.PrintMessage("LINK PROT, using staff.", MessageType.LogMessage);
+                if (forcestaff != null && forcestaff.CanBeCasted())
+                    forcestaff.UseAbility(target);
+                else if (cyclone != null && cyclone.CanBeCasted())
+                    cyclone.UseAbility(target);
+
+                Utils.Sleep(200, "PudgePROlinkProtCheck");
+                return true;
+            }
+            return false;
         }
 
         public static bool AllOnCooldown()
