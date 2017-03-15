@@ -71,7 +71,7 @@ namespace PudgePRO
             target = me.ClosestToMouseTarget(ClosestToMouseRange.GetValue<Slider>().Value);
             allyTarget = ClosestToMouseAlly(me);
 
-            if (Utils.SleepCheck("PudgePROrotatedCheckSleep"))
+            if (target != null && Utils.SleepCheck("PudgePROrotatedCheckSleep"))
             {
                 //Game.PrintMessage("Target Rotated: " + TargetRotated(), MessageType.LogMessage);
                 targetRotate = TargetRotated();
@@ -148,7 +148,7 @@ namespace PudgePRO
                 else if (aetherLens != null) dismAddRange -= 125;
 
                 //Menu.Item("itemsCon").Equals("item_force_staff");
-                if (blink != null && target.NetworkPosition.Distance2D(me.NetworkPosition) < blink.GetCastRange() + me.HullRadius + dismAddRange)
+                if (blink != null && target != null && target.NetworkPosition.Distance2D(me.NetworkPosition) < blink.GetCastRange() + me.HullRadius + dismAddRange)
                     useBlink.SetValue(true);
                 else
                     useBlink.SetValue(false);
