@@ -1010,7 +1010,7 @@ namespace PudgePRO
         {
             if (target.IsLinkensProtected() && Utils.SleepCheck("PudgePROlinkProtCheck"))
             {
-                Game.PrintMessage("LINK PROT, using staff.", MessageType.LogMessage);
+                Game.PrintMessage("LINK PROT, using staff.");
                 if (forcestaff != null && forcestaff.CanBeCasted())
                     forcestaff.UseAbility(target);
                 else if (cyclone != null && cyclone.CanBeCasted())

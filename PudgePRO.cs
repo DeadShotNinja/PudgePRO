@@ -48,8 +48,7 @@ namespace PudgePRO
                 loaded = true;
                 Game.PrintMessage(
                     "<font face='Calibri Bold'><font color='#04B404'>" + AssemblyName +
-                    " loaded.</font> (coded by <font color='#0404B4'>DeadShotNinja</font>) v" + Assembly.GetExecutingAssembly().GetName().Version,
-                    MessageType.LogMessage);
+                    " loaded.</font> (coded by <font color='#0404B4'>DeadShotNinja</font>) v" + Assembly.GetExecutingAssembly().GetName().Version);
                 GetAbilities();
                 Game.OnUpdate += FullCombo;
                 Drawing.OnDraw += TargetIndicator;
